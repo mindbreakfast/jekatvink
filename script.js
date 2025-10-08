@@ -1,329 +1,169 @@
-/* script.js — восстановленный полный функционал
-   - соответствует твоему index.html (IDs/classes: #casinoList, #searchInput, .filter-btn, .card, .promo-code, .play-btn, .scam)
-   - слот-ролик: вертикальная прокрутка списка goodWords, в конце final из badWords (центруется)
-   - overlay "Поздравляю!" фиксирован — не ломает верстку
-   - SCAM-карта падает при клике, промокод копируется, фильтры и поиск работают
-   - Поставь свои mp3 в SPIN_SOUND_SRC и WIN_SOUND_SRC
-*/
+// ---------- ГЛАВНЫЕ ДАННЫЕ ----------
+const casinos = [
+  { name: "Вавада", desc: "Тот самый, но шуточный.", promo: "VAVADA2025", category: ["Топ"], img: "https://via.placeholder.com/400x150?text=Вавада", link: "#" },
+  { name: "Стейк", desc: "Для тех, кто любит ставки на мясо.", promo: "STEAKFUN", category: ["Топ"], img: "https://via.placeholder.com/400x150?text=Стейк", link: "#" },
+  { name: "Водка", desc: "Отдохни с душой и бонусом.", promo: "SHOT777", category: ["Прикол"], img: "https://via.placeholder.com/400x150?text=Водка", link: "#" },
+  { name: "Буй", desc: "Корабль удачи поднимает паруса.", promo: "BUOYLUCK", category: ["Топ"], img: "https://via.placeholder.com/400x150?text=Буй", link: "#" },
+  { name: "ПлейФортуна", desc: "Играй с улыбкой, не на деньги.", promo: "FORTUNAJOY", category: ["Топ"], img: "https://via.placeholder.com/400x150?text=ПлейФортуна", link: "#" },
+  { name: "ДжойКазино", desc: "Веселье без депозита (и смысла).", promo: "JOYHAPPY", category: ["Топ"], img: "https://via.placeholder.com/400x150?text=ДжойКазино", link: "#" },
+  { name: "Скам", desc: "Никакого скама! Только честный фейк.", promo: "NONE", category: ["Фейк"], img: "https://via.placeholder.com/400x150?text=SCAM", link: "#" }
+];
 
-/* ---------------- CONFIG ---------------- */
-const SPIN_SOUND_SRC = "/sounds/spin.mp3"; // <-- заменишь сам
-const WIN_SOUND_SRC  = "/sounds/win.mp3";  // <-- заменишь сам
-
-/* ---------------- DOM ------------------- */
-const casinoList = document.getElementById("casinoList");
+// ---------- РЕНДЕРИНГ КАРТОЧЕК ----------
+const casinoList = document.getElementById("casino-list");
 const searchInput = document.getElementById("searchInput");
-const filterBtns = Array.from(document.querySelectorAll(".filter-btn"));
-const bybitToggle = document.getElementById("bybitToggle");
-const bybitContent = document.getElementById("bybitContent");
-const spinButton = document.getElementById("spinButton");
-const wordDisplay = document.getElementById("wordDisplay");
-const confettiCanvas = document.getElementById("confettiCanvas");
-let overlay = document.getElementById("spin-result");
-if (!overlay) {
-  overlay = document.createElement("div"); overlay.id = "spin-result";
-  document.body.appendChild(overlay);
+const categoryButtons = document.getElementById("categoryButtons");
+
+function renderCasinos(filter = "") {
+  const filtered = casinos.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+  casinoList.innerHTML = "";
+
+  filtered.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "casino-card";
+
+    card.innerHTML = `
+      <img src="${c.img}" alt="${c.name}">
+      <div class="casino-info">
+        <h3>${c.name}</h3>
+        <p>${c.desc}</p>
+        <div class="promo" data-code="${c.promo}">${c.promo}</div>
+        <button class="play-button"${c.name === "Скам" ? "" : ` onclick="openCasino('${c.link}','${c.promo}')"`}>
+          ${c.name === "Скам" ? "в игру" : "в игру"}
+        </button>
+      </div>
+    `;
+
+    if (c.name === "Скам") {
+      card.querySelector(".play-button").addEventListener("click", () => {
+        card.style.transition = "transform 1s ease, opacity 1s ease";
+        card.style.transform = "rotate(90deg) translateY(100px)";
+        card.style.opacity = "0";
+        setTimeout(() => card.remove(), 1000);
+      });
+    }
+
+    card.querySelector(".promo").addEventListener("click", e => {
+      const code = e.target.dataset.code;
+      navigator.clipboard.writeText(code);
+      e.target.innerText = "Скопировано!";
+      setTimeout(() => e.target.innerText = code, 1500);
+    });
+
+    casinoList.appendChild(card);
+  });
 }
 
-/* ---------------- State ------------------ */
-let goodWords = [];
-let badWords = [];
-let isSpinning = false;
-
-/* ---------------- Init ------------------- */
-document.addEventListener("DOMContentLoaded", async () => {
-  // load word lists
-  await Promise.all([loadGood(), loadBad()]);
-  // attach events
-  setupFilters();
-  setupSearch();
-  setupPromoAndPlay();
-  setupBybit();
-  setupSpin();
-  setupConfettiCanvas();
+searchInput.addEventListener("input", e => {
+  renderCasinos(e.target.value);
 });
 
-/* -------------- Loaders ----------------- */
-async function loadGood(){
-  try {
-    const r = await fetch(`/goodWords.json?v=${Date.now()}`, {cache: 'no-store'});
-    if (r.ok) goodWords = await r.json();
-  } catch(e){ console.warn("loadGood failed", e); goodWords = goodWords || ["Пусто"] }
-}
-async function loadBad(){
-  try {
-    const r = await fetch(`/badWords.json?v=${Date.now()}`, {cache: 'no-store'});
-    if (r.ok) badWords = await r.json();
-  } catch(e){ console.warn("loadBad failed", e); badWords = badWords || ["Ничего"] }
-}
+renderCasinos();
 
-/* -------------- Filters & Search ---------------- */
-function setupFilters(){
-  filterBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      filterBtns.forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      applyFilters();
-    });
-  });
-  applyFilters(); // initial
-}
-function setupSearch(){
-  searchInput.addEventListener("input", () => applyFilters());
-  // Enter focuses first .play-btn
-  searchInput.addEventListener("keydown", (e)=> { if (e.key === "Enter") { const first = casinoList.querySelector('.play-btn'); if (first) first.focus(); }});
-}
+// ---------- РАНДОМАЙЗЕР ----------
+let goodList = [];
+let badList = [];
 
-// variantsOf with ru/en layout map (helps if user forgot switch)
-const layoutMap = {
-  'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p','х':'[','ъ':']',
-  'ф':'a','ы':'s','в':'d','а':'f','п':'g','р':'h','о':'j','л':'k','д':'l','ж':';','э':'\'',
-  'я':'z','ч':'x','с':'c','м':'v','и':'b','т':'n','ь':'m','б':',','ю':'.'
-};
-const enToRu = Object.fromEntries(Object.entries(layoutMap).map(([k,v])=>[v,k]));
-function variantsOf(q){
-  q=(q||'').toLowerCase();
-  if(!q) return [''];
-  const ruEn = q.split('').map(c => layoutMap[c] || c).join('');
-  const enRu = q.split('').map(c => enToRu[c] || c).join('');
-  return [q, ruEn, enRu];
-}
+fetch("/good.json").then(r => r.json()).then(data => goodList = data);
+fetch("/bad.json").then(r => r.json()).then(data => badList = data);
 
-function applyFilters(){
-  const activeCatBtn = document.querySelector('.filter-btn.active');
-  const cat = activeCatBtn ? activeCatBtn.dataset.category : "all";
-  const q = searchInput.value.trim().toLowerCase();
-  const vars = variantsOf(q);
+const slotDisplay = document.getElementById("slotDisplay");
+const startButton = document.getElementById("startRandomizer");
 
-  Array.from(casinoList.children).forEach(card => {
-    if (!card.classList.contains('card')) return;
-    // category (card dataset may contain space-separated categories)
-    const cData = (card.dataset.category || "").toLowerCase();
-    const catMatch = (cat === "all") || cData.split(/\s+/).includes(cat.toLowerCase());
-    // search match on title, desc, promo
-    const title = (card.querySelector('h3')||{textContent:''}).textContent.toLowerCase();
-    const desc = (card.querySelector('p')||{textContent:''}).textContent.toLowerCase();
-    const promo = (card.querySelector('.promo-code')||{textContent:''}).textContent.toLowerCase();
-    const hay = (title+" "+desc+" "+promo).toLowerCase();
+let isAnimating = false;
 
-    const searchMatch = (!q) || vars.some(v => v && hay.includes(v));
-    card.style.display = (catMatch && searchMatch) ? 'block' : 'none';
-  });
-}
+startButton.addEventListener("click", () => {
+  if (isAnimating) return;
+  isAnimating = true;
 
-/* -------------- Promo & Play handlers ------------- */
-function setupPromoAndPlay(){
-  document.addEventListener("click", async (e) => {
-    const promo = e.target.closest('.promo-code');
-    if (promo) {
-      const code = promo.textContent.trim();
-      try { await navigator.clipboard.writeText(code); }
-      catch(e){ console.warn('copy err',e) }
-      const prev = promo.textContent;
-      promo.classList.add('copied');
-      promo.textContent = 'Скопировано';
-      setTimeout(()=>{ promo.textContent = prev; promo.classList.remove('copied'); }, 1200);
-      return;
-    }
-
-    const play = e.target.closest('.play-btn');
-    if (play) {
-      const card = play.closest('.card');
-      if (card && card.classList.contains('scam')) {
-        // trigger fall
-        card.classList.add('fall');
-        setTimeout(()=>{ try{ card.remove(); }catch(e){} }, 1400);
-        return;
-      }
-      // otherwise copy promo code if exists nearby
-      const promoSpan = (card && card.querySelector('.promo-code')) || null;
-      if (promoSpan) {
-        try { await navigator.clipboard.writeText(promoSpan.textContent.trim()); } catch(e){}
-      }
-      // open link if present on card.dataset.url or anchor inside
-      const link = card && card.dataset.url;
-      if (link) window.open(link, '_blank', 'noopener');
-    }
-  });
-}
-
-/* --------------- BYBIT toggle ---------------- */
-function setupBybit(){
-  if (!bybitToggle || !bybitContent) return;
-  bybitToggle.addEventListener("click", ()=> {
-    bybitContent.classList.toggle('hidden');
-  });
-}
-
-/* --------------- Confetti canvas ---------------- */
-let confettiCtx = null;
-function setupConfettiCanvas(){
-  if (!confettiCanvas) return;
-  confettiCanvas.width = window.innerWidth;
-  confettiCanvas.height = 300;
-  confettiCtx = confettiCanvas.getContext('2d');
-  window.addEventListener('resize', ()=> { confettiCanvas.width = window.innerWidth; confettiCanvas.height = 300; });
-}
-
-/* simple confetti burst for finish */
-function launchConfetti() {
-  if (!confettiCtx) return;
-  const canvas = confettiCanvas;
-  const ctx = confettiCtx;
-  const parts = [];
-  const N = 80;
-  for (let i=0;i<N;i++){
-    parts.push({
-      x: canvas.width/2 + (Math.random()-0.5)*240,
-      y: 30 + Math.random()*40,
-      vx: (Math.random()-0.5)*6,
-      vy: Math.random()*6 + 2,
-      r: Math.random()*5+2,
-      color: `hsl(${Math.floor(Math.random()*360)},70%,60%)`
-    });
-  }
+  const spinDuration = 6000; // длительность 6 сек
   const start = performance.now();
-  function frame(now){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for (const p of parts){
-      p.x += p.vx; p.y += p.vy; p.vy += 0.15;
-      ctx.beginPath(); ctx.fillStyle = p.color; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+
+  function spin(timestamp) {
+    const progress = timestamp - start;
+    const easing = Math.pow(progress / spinDuration, 0.7);
+    const index = Math.floor(Math.random() * goodList.length);
+    slotDisplay.textContent = goodList[index];
+    if (progress < spinDuration) {
+      requestAnimationFrame(spin);
+    } else {
+      const finalWord = badList[Math.floor(Math.random() * badList.length)];
+      slotDisplay.textContent = finalWord;
+      isAnimating = false;
+      // Конфетти или звук можно добавить здесь
     }
-    if (now - start < 2400) requestAnimationFrame(frame);
-    else setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height), 80);
   }
-  requestAnimationFrame(frame);
+  requestAnimationFrame(spin);
+});
+
+// ---------- BYBIT ----------
+const bybitSection = document.getElementById("bybit-instruction");
+const closeBybit = document.getElementById("closeBybit");
+if (closeBybit) closeBybit.addEventListener("click", () => bybitSection.classList.add("hidden"));
+
+// ---------- ПОДДЕЛЬНОЕ ОТКРЫТИЕ ----------
+function openCasino(link, promo) {
+  navigator.clipboard.writeText(promo);
+  window.open(link, "_blank");
 }
 
-/* ------------- Slot-like spin (vertical scroll) --------------- */
-function setupSpin(){
-  if (!spinButton || !wordDisplay) return;
-  const spinAudio = new Audio(SPIN_SOUND_SRC);
-  const winAudio = new Audio(WIN_SOUND_SRC);
-  spinAudio.volume = 0.75; winAudio.volume = 0.9;
-  spinButton.addEventListener("click", async () => {
-    if (isSpinning) return;
-    isSpinning = true;
-    spinButton.disabled = true;
+// ---------- ДЕРЕВЬЯ ----------
+const leftTree = document.getElementById("leftTree");
+const rightTree = document.getElementById("rightTree");
 
-    // ensure words loaded
-    if (!goodWords.length) await loadGood();
-    if (!badWords.length) await loadBad();
+function drawTree(canvas, mirrored = false) {
+  const ctx = canvas.getContext("2d");
+  let branches = [];
+  const baseX = mirrored ? canvas.width - 20 : 20;
+  const baseY = canvas.height - 10;
 
-    // Prepare sequence: several loops of shuffled goodWords + final bad
-    const loops = 6; // how many cycles of goods
-    const seq = [];
-    for (let i=0;i<loops;i++){
-      const shuffled = shuffle([...goodWords]);
-      for (const w of shuffled) seq.push(w);
-    }
-    // choose final bad word and push many duplicates near end to slow visually
-    const finalBad = badWords.length ? badWords[Math.floor(Math.random()*badWords.length)] : "Ничего";
-    // append few goods right before final to look natural
-    const tailGoods = shuffle([...goodWords]).slice(0,6);
-    for (const g of tailGoods) seq.push(g);
-    seq.push(finalBad); // final at very end
+  function growBranch(x, y, length, angle, depth) {
+    if (depth > 5) return;
+    const endX = x + length * Math.cos(angle);
+    const endY = y - length * Math.sin(angle);
+    branches.push({ x, y, endX, endY, depth });
+    const nextLength = length * (0.7 + Math.random() * 0.1);
+    const leftAngle = angle + (0.3 + Math.random() * 0.2);
+    const rightAngle = angle - (0.3 + Math.random() * 0.2);
+    growBranch(endX, endY, nextLength, leftAngle, depth + 1);
+    growBranch(endX, endY, nextLength, rightAngle, depth + 1);
+  }
 
-    // Build DOM list
-    wordDisplay.innerHTML = '';
-    const list = document.createElement('div');
-    list.className = 'reel-list';
-    for (const v of seq){
-      const it = document.createElement('div');
-      it.className = 'reel-item';
-      it.textContent = v;
-      list.appendChild(it);
-    }
-    wordDisplay.appendChild(list);
+  growBranch(baseX, baseY, 50, Math.PI / 2, 0);
 
-    // Wait one tick, measure item height & viewport
-    await new Promise(r => requestAnimationFrame(r));
-    const firstItem = list.querySelector('.reel-item');
-    const itemH = firstItem ? firstItem.getBoundingClientRect().height : 84;
-    const viewportH = wordDisplay.getBoundingClientRect().height;
-    // target index = last item (final bad)
-    const targetIndex = seq.length - 1;
-    // compute translateY so final item centered:
-    const finalTranslate = -(itemH * targetIndex) + ( (viewportH - itemH) / 2 );
+  let progress = 0;
+  const growStart = performance.now();
+  function animateGrow(timestamp) {
+    const elapsed = timestamp - growStart;
+    progress = Math.min(elapsed / 10000, 1);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = "round";
 
-    // start audio (loop)
-    try { spinAudio.currentTime = 0; spinAudio.loop = true; await spinAudio.play(); } catch(e){ /* auto-play may be blocked until user gesture — but click is user gesture */ }
+    branches.forEach((b, i) => {
+      const visible = i / branches.length < progress;
+      if (visible) {
+        ctx.strokeStyle = "#6b4e2e";
+        ctx.lineWidth = 6 - b.depth;
+        ctx.beginPath();
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(b.endX, b.endY);
+        ctx.stroke();
 
-    // initial small offset so it looks like start from top 0
-    list.style.transition = 'none';
-    list.style.transform = `translateY(0px)`;
-    // force reflow
-    list.getBoundingClientRect();
-
-    // animate with CSS transition — ease-out feeling
-    const duration = 5000; // 5 sec total as requested
-    list.style.transition = `transform ${duration}ms cubic-bezier(.16,.9,.07,1)`;
-    list.style.transform = `translateY(${finalTranslate}px)`;
-
-    // when transition ends: finalize
-    const onEnd = async () => {
-      list.removeEventListener('transitionend', onEnd);
-      try { spinAudio.pause(); spinAudio.currentTime = 0; } catch(e){}
-      try { winAudio.currentTime = 0; await winAudio.play(); } catch(e){}
-      // show overlay (no layout shift)
-      showOverlay("Поздравляю!");
-      // highlight final visually
-      const lastIt = list.querySelector('.reel-item:last-child');
-      if (lastIt) {
-        lastIt.style.color = '#ffd08a';
-        lastIt.style.transform = 'scale(1.05)';
-        lastIt.style.transition = 'transform .25s ease';
+        // Монетки на концах
+        if (b.depth > 4 && Math.random() < 0.05) {
+          ctx.beginPath();
+          ctx.arc(b.endX, b.endY, 4, 0, Math.PI * 2);
+          ctx.fillStyle = "#f6c75a";
+          ctx.fill();
+        }
       }
-      launchConfetti();
-      setTimeout(()=> {
-        hideOverlay();
-        // cleanup: leave final word visible (list at translated pos). can optionally reset list after
-        try{ if (lastIt){ lastIt.style.transform=''; lastIt.style.color=''; } } catch(e){}
-        isSpinning = false;
-        spinButton.disabled = false;
-      }, 1600);
-    };
-    list.addEventListener('transitionend', onEnd);
-  });
-}
+    });
 
-/* Utility: shuffle */
-function shuffle(arr){
-  for (let i = arr.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    if (progress < 1) requestAnimationFrame(animateGrow);
   }
-  return arr;
+
+  requestAnimationFrame(animateGrow);
 }
 
-/* overlay helpers */
-function showOverlay(text){
-  overlay.textContent = text || "";
-  overlay.style.opacity = "1";
-  overlay.style.transform = "translateX(-50%) scale(1.02)";
-}
-function hideOverlay(){
-  overlay.style.opacity = "0";
-  overlay.style.transform = "translateX(-50%) scale(.98)";
-}
-
-/* ----------------- utility: copy fallback ----------------- */
-async function tryCopy(text){
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch(e){
-    // fallback (older)
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); ta.remove();
-      return true;
-    } catch(e2){ return false; }
-  }
-}
-
-/* ----------------- Optional: if you dynamically render cards from JSON, you can implement that here.
-   For now we operate on static .card entries already present in index.html.  */
-
-/* -------------- End of script -------------- */
+drawTree(leftTree, false);
+drawTree(rightTree, true);
