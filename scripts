@@ -164,4 +164,297 @@ function makeCard(item){
   }
 
   // play button
-  const play = document.createElement('a'); play.className = 'btn-gam
+  const play = document.createElement('a'); play.className = 'btn-game'; play.textContent = 'В игру';
+  play.href = item.url || '#'; play.target = '_blank'; play.rel = 'noopener noreferrer';
+  play.addEventListener('click', async (e) => {
+    if(item.promo_code){
+      // prevent immediate navigation; copy first
+      e.preventDefault();
+      await copyToClipboard(item.promo_code);
+      const promoBtn = root.querySelector('.promo .promo-code');
+      const tip = root.querySelector('.promo .promo-tip');
+      if(promoBtn) flashCopied(promoBtn, tip);
+      // small delay to let clipboard settle
+      setTimeout(() => window.open(item.url || '#', '_blank', 'noopener'), 220);
+    }
+    // otherwise default link navigation
+  });
+
+  actions.appendChild(play);
+
+  root.appendChild(thumb);
+  root.appendChild(info);
+  root.appendChild(actions);
+
+  // SCAM behavior
+  if(item.fake){
+    root.addEventListener('mouseenter', ()=> startScamCountdown(root));
+    root.addEventListener('mouseleave', ()=> cancelScamCountdown(root));
+  }
+
+  return root;
+}
+
+/* copy util + visual */
+async function copyToClipboard(text){
+  try {
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+    }
+    return true;
+  } catch (e) {
+    console.warn('copy failed', e);
+    return false;
+  }
+}
+function flashCopied(elem, tip){
+  if(!elem) return;
+  elem.classList.add('copied');
+  if(tip) tip.textContent = '✅ Скопировано!';
+  setTimeout(()=>{ elem.classList.remove('copied'); if(tip) tip.textContent = ''; }, 1400);
+}
+
+/* ===== SCAM falling ===== */
+const SCAM_TIMEOUT = 3000;
+const _scamTimers = new WeakMap();
+function startScamCountdown(card){
+  if(_scamTimers.has(card)) return;
+  const t = setTimeout(()=>{
+    card.style.animation = 'fallAway 1.4s ease forwards';
+    card.style.pointerEvents = 'none';
+    setTimeout(()=>{ try{ card.remove(); }catch(e){} },1500);
+  }, SCAM_TIMEOUT);
+  _scamTimers.set(card, t);
+}
+function cancelScamCountdown(card){
+  const t = _scamTimers.get(card);
+  if(t){ clearTimeout(t); _scamTimers.delete(card); }
+}
+
+/* ===== Search with layout correction (ru<>en) ===== */
+const layoutMap = {
+  ru_to_en: {
+    'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p','х':'[','ъ':']',
+    'ф':'a','ы':'s','в':'d','а':'f','п':'g','р':'h','о':'j','л':'k','д':'l','ж':';','э':'\'',
+    'я':'z','ч':'x','с':'c','м':'v','и':'b','т':'n','ь':'m','б':',','ю':'.'
+  }
+};
+const en_to_ru = Object.fromEntries(Object.entries(layoutMap.ru_to_en).map(([k,v]) => [v,k]));
+
+function variantsOf(q){
+  q = (q||'').trim();
+  if(!q) return [''];
+  const lower = q.toLowerCase();
+  const ruToEn = lower.split('').map(ch => layoutMap.ru_to_en[ch]||ch).join('');
+  const enToRu = lower.split('').map(ch => en_to_ru[ch]||ch).join('');
+  return [lower, ruToEn, enToRu];
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function highlightMatch(text, q){
+  if(!q) return escapeHtml(text);
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if(idx === -1) return escapeHtml(text);
+  return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+q.length)) + '</mark>' + escapeHtml(text.slice(idx+q.length));
+}
+
+function setupSearch(){
+  refs.search.addEventListener('input', (e) => filterByQuery(e.target.value));
+  refs.search.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const first = refs.cards.querySelector('.card a.btn-game');
+      if(first) first.focus();
+    }
+  });
+}
+
+function filterByCategory(cat){
+  const cards = Array.from(refs.cards.children);
+  if(cat === 'Все'){
+    cards.forEach(c => c.style.display = 'flex');
+    return;
+  }
+  cards.forEach(card => {
+    const badges = Array.from(card.querySelectorAll('.badge')).map(b => b.textContent);
+    if(badges.includes(cat)) card.style.display = 'flex'; else card.style.display = 'none';
+  });
+}
+
+function filterByQuery(q){
+  const variants = variantsOf(q);
+  const cards = Array.from(refs.cards.children);
+  cards.forEach(card => {
+    const name = card.querySelector('h4').textContent || '';
+    const bonus = card.querySelector('p').textContent || '';
+    const promo = (card.querySelector('.promo .promo-code')||{}).textContent || '';
+    const hay = (name + ' ' + bonus + ' ' + promo).toLowerCase();
+
+    const match = variants.some(v => v && hay.includes(v.toLowerCase()));
+    if(!q){
+      card.style.display = 'flex';
+      card.querySelector('h4').innerHTML = escapeHtml(name);
+      card.querySelector('p').innerHTML = escapeHtml(bonus);
+    } else if(match){
+      card.style.display = 'flex';
+      let found = false;
+      for(const v of variants){
+        if(!v) continue;
+        if(name.toLowerCase().includes(v)){
+          card.querySelector('h4').innerHTML = highlightMatch(name, v);
+          card.querySelector('p').innerHTML = escapeHtml(bonus);
+          found = true; break;
+        } else if(bonus.toLowerCase().includes(v)){
+          card.querySelector('p').innerHTML = highlightMatch(bonus, v);
+          card.querySelector('h4').innerHTML = escapeHtml(name);
+          found = true; break;
+        } else if(promo.toLowerCase().includes(v)){
+          const codeElem = card.querySelector('.promo .promo-code');
+          if(codeElem) codeElem.innerHTML = highlightMatch(codeElem.textContent, v);
+          card.querySelector('h4').innerHTML = escapeHtml(name);
+          card.querySelector('p').innerHTML = escapeHtml(bonus);
+          found = true; break;
+        }
+      }
+      if(!found){
+        card.querySelector('h4').innerHTML = escapeHtml(name);
+        card.querySelector('p').innerHTML = escapeHtml(bonus);
+      }
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+/* autofocus */
+function setupAutoFocus(){
+  setTimeout(()=>{ try{ refs.search.focus(); refs.search.select(); }catch(e){} }, 100);
+}
+
+/* BYBIT modal */
+function setupBybit(){
+  refs.bybitBtn.addEventListener('click', ()=> refs.bybitModal.setAttribute('aria-hidden','false'));
+  refs.bybitClose.addEventListener('click', ()=> refs.bybitModal.setAttribute('aria-hidden','true'));
+  refs.bybitModal.addEventListener('click', (e)=> { if(e.target === refs.bybitModal) refs.bybitModal.setAttribute('aria-hidden','true'); });
+}
+
+/* Donate */
+function setupDonate(){
+  refs.donateHeader.addEventListener('click', ()=> { pulse(refs.donateHeader); window.open(DONATE_URL, '_blank', 'noopener'); });
+  refs.donateBtn.addEventListener('click', ()=> { pulse(refs.donateBtn); window.open(DONATE_URL, '_blank', 'noopener'); });
+}
+function pulse(el){ el.classList.add('pulse'); setTimeout(()=> el.classList.remove('pulse'), 700); }
+
+/* ===== Wheel + confetti + sound ===== */
+function setupWheel(){
+  const sectors = [
+    "Нихуя","Ничего","0","Ноль","Неа","Йух","No","Error","Жаль","Нет.","Сори","Плак плак", ":'("
+  ];
+  const canvas = refs.wheelCanvas;
+  const ctx = canvas.getContext('2d');
+  const size = Math.min(canvas.width, canvas.height);
+  const cx = canvas.width/2, cy = canvas.height/2;
+  const radius = size/2 - 8;
+  const sectorCount = sectors.length;
+  const anglePer = Math.PI*2 / sectorCount;
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    for(let i=0;i<sectorCount;i++){
+      const ang = i * anglePer;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy, radius, ang, ang+anglePer);
+      ctx.closePath();
+      ctx.fillStyle = i%2 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)';
+      ctx.fill();
+      ctx.save();
+      ctx.translate(cx,cy);
+      ctx.rotate(ang + anglePer/2);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(sectors[i], radius*0.6, 6);
+      ctx.restore();
+    }
+    // center
+    ctx.beginPath(); ctx.arc(cx,cy,60,0,Math.PI*2); ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fill();
+  }
+  draw();
+
+  let rotation = 0;
+  let spinning = false;
+  let attempts = 0;
+
+  function playTone(type){
+    if(refs.mute && refs.mute.checked) return;
+    try {
+      const audioCtx = window._jv_audio || (window._jv_audio = new (window.AudioContext || window.webkitAudioContext)());
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type === 'spin' ? 'sawtooth' : 'square';
+      if(type === 'spin'){
+        o.frequency.setValueAtTime(220, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.02, audioCtx.currentTime);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); setTimeout(()=>o.stop(), 450);
+      } else {
+        o.frequency.setValueAtTime(440, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); setTimeout(()=>o.stop(), 220);
+      }
+    } catch(e){}
+  }
+
+  function spin(){
+    if(spinning) return;
+    spinning = true;
+    playTone('spin');
+    const extra = Math.floor(Math.random()*sectorCount);
+    const rounds = 6 + Math.floor(Math.random()*6);
+    const targetDeg = (rounds * 360) + (extra * (360/sectorCount)) + (360/sectorCount)/2;
+    const start = performance.now();
+    const duration = 2700 + Math.random()*1200;
+    const from = rotation % 360;
+    const to = from + targetDeg;
+
+    function anim(t){
+      const p = Math.min(1, (t - start)/duration);
+      const ease = 1 - Math.pow(1 - p, 3);
+      rotation = from + (to - from) * ease;
+      canvas.style.transform = `rotate(${rotation}deg)`;
+      if(p < 1) requestAnimationFrame(anim);
+      else {
+        spinning = false;
+        attempts++;
+        refs.spinCount.textContent = `Попыток: ${attempts}`;
+        const final = Math.floor(((rotation % 360) / 360) * sectorCount);
+        const index = (sectorCount - (final % sectorCount)) % sectorCount;
+        const res = sectors[index];
+        playTone('stop');
+        showResult(res);
+        // confetti
+        try {
+          const myConfetti = confetti.create(refs.confettiCanvas, { resize: true, useWorker: true });
+          myConfetti({ particleCount: 90, spread: 70, ticks: 140, origin: { y: 0.15 } });
+        } catch (e) {
+          try { confetti({ particleCount: 50, spread: 60 }); } catch(e){}
+        }
+      }
+    }
+    requestAnimationFrame(anim);
+  }
+
+  function showResult(text){
+    refs.spinResult.textContent = `Поздравляем! Вы выиграли — ${text}`;
+    refs.spinBtn.style.display = 'none';
+    setTimeout(()=>{ refs.spinResult.textContent = ''; refs.spinBtn.style.display = ''; }, 2200);
+  }
+
+  refs.spinBtn.addEventListener('click', spin);
+  canvas.addEventListener('click', spin);
+}
+
+/* end of script */
