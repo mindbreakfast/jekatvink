@@ -1,20 +1,20 @@
-/* script.js — финальная рабочая версия (шаблон)
- - чистый HTML/CSS/JS
- - загрузка data/casinos.json
- - категории, фильтры, поиск с коррекцией раскладки
- - промокоды: клик копирует; при переходе автокопирование
- - SCAM: отваливается через 3 сек при наведении
- - колесо удачи + confetti (cdn) + WebAudio простые звуки
- - Donate buttons (открывают внешний URL; замените ниже)
+/* script.js — финальная версия
+ - Загрузка data/casinos.json (с fallback)
+ - Категории, фильтры, поиск с коррекцией раскладки
+ - Промокоды: копирование и автокопирование перед переходом
+ - SCAM: "отваливается" через 3s при наведении
+ - Колесо удачи: вращение, WebAudio, конфетти (canvas-confetti CDN)
+ - Донат-кнопки, BYBIT модалка, автофокус
 */
 
 "use strict";
 
-const CASINOS_JSON_PATH = 'data/casinos.json';
-const DONATE_URL = 'https://donatepay.ru/don/435213'; // можно заменить
-let casinosData = [];
+const JSON_PATH = 'data/casinos.json';
+const DONATE_URL = 'https://donatepay.ru/don/435213'; // предоставленная ссылка
 
-/* DOM refs */
+let casinos = [];
+
+/* DOM references */
 const refs = {
   search: null,
   categories: null,
@@ -38,7 +38,7 @@ async function init(){
   bind();
   await loadData();
   buildCategories();
-  renderCards(casinosData);
+  renderAllCards();
   setupSearch();
   setupAutoFocus();
   setupBybit();
@@ -46,7 +46,7 @@ async function init(){
   setupWheel();
 }
 
-/* Bind DOM elements */
+/* bind DOM */
 function bind(){
   refs.search = document.getElementById('search');
   refs.categories = document.getElementById('categories');
@@ -64,15 +64,104 @@ function bind(){
   refs.confettiCanvas = document.getElementById('confetti-canvas');
 }
 
-/* Load JSON (fallback to embedded data if fetch fails) */
+/* load JSON with fallback */
 async function loadData(){
   try {
-    const r = await fetch(CASINOS_JSON_PATH, {cache:'no-store'});
+    const r = await fetch(JSON_PATH, {cache: 'no-store'});
     if(!r.ok) throw new Error('no json');
-    casinosData = await r.json();
+    casinos = await r.json();
   } catch (e) {
-    console.warn('Не удалось загрузить JSON — используем встроенные данные', e);
-    // встроенный запас (повторяет data/casinos.json)
-    casinosData = [
-      {"id":"demo1","name":"DemoPlace A","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'><rect width='100%' height='100%' fill='%2318202b'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>DemoPlace A</text></svg>","bonus":"Промо: 100% + фриспины","promo_code":"DEMOA100","url":"#","categories":["Топ","Рекомендуем"]},
-      {"id":"demo2","name":"DemoPlay B","
+    console.warn('Не удалось загрузить JSON — использую резервный набор', e);
+    casinos = [
+      {"id":"alpha","name":"Casino Alpha (пример)","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%230b1420'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%23fff'>Alpha</text></svg>","bonus":"Бонус: 100% до 5000","promo_code":"ALPHA100","url":"#","categories":["Топ","Рекомендуем"]},
+      {"id":"beta","name":"Casino Beta (пример)","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23112233'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%239ef'>Beta</text></svg>","bonus":"Фриспины + 2000","promo_code":"BETA200","url":"#","categories":["Крипто"]},
+      {"id":"vip","name":"VIP Roll (пример)","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23111111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%23f6d37a'>VIPRoll</text></svg>","bonus":"Фриспины + 1500","promo_code":"VIPROLL1500","url":"#","categories":["Рекомендуем"]},
+      {"id":"scam","name":"Скам","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23ff3333'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='36' fill='%23fff'>SCAM</text></svg>","bonus":"Никакого скама! Только проверенные места!","url":"#","fake":true,"categories":[]}
+    ];
+  }
+}
+
+/* ===== Categories ===== */
+function buildCategories(){
+  const map = new Map();
+  casinos.forEach(c => (c.categories||[]).forEach(cat => {
+    if(!map.has(cat)) map.set(cat, []);
+    map.get(cat).push(c);
+  }));
+
+  refs.categories.innerHTML = '';
+  refs.categories.appendChild(createCategoryBtn('Все', true));
+
+  // if 'Топ' exists, keep ordering friendly
+  if(map.has('Топ')) refs.categories.appendChild(createCategoryBtn('Топ'));
+
+  Array.from(map.keys()).sort().forEach(k => {
+    if(k === 'Топ') return;
+    refs.categories.appendChild(createCategoryBtn(k));
+  });
+
+  refs.categories.addEventListener('click', e => {
+    const btn = e.target.closest('.category-btn');
+    if(!btn) return;
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterByCategory(btn.dataset.cat);
+  });
+}
+
+function createCategoryBtn(name, active=false){
+  const b = document.createElement('button');
+  b.className = 'category-btn' + (active ? ' active' : '');
+  b.textContent = name;
+  b.dataset.cat = name;
+  return b;
+}
+
+/* ===== Cards rendering ===== */
+function renderAllCards(){
+  refs.cards.innerHTML = '';
+  casinos.forEach(c => refs.cards.appendChild(makeCard(c)));
+}
+
+function makeCard(item){
+  const root = document.createElement('article');
+  root.className = 'card' + (item.fake ? ' scam' : '');
+  root.dataset.id = item.id || '';
+  root.dataset.name = item.name || '';
+
+  // thumb
+  const thumb = document.createElement('div'); thumb.className = 'thumb';
+  const img = document.createElement('img'); img.src = item.image || ''; img.alt = item.name || '';
+  img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
+  thumb.appendChild(img);
+
+  // info
+  const info = document.createElement('div'); info.className = 'info';
+  const h4 = document.createElement('h4'); h4.textContent = item.name;
+  const p = document.createElement('p'); p.textContent = item.bonus || '';
+  const badges = document.createElement('div'); badges.className = 'badges';
+  (item.categories||[]).slice(0,3).forEach(cat => {
+    const s = document.createElement('span'); s.className = 'badge'; s.textContent = cat; badges.appendChild(s);
+  });
+  info.appendChild(h4); info.appendChild(p); info.appendChild(badges);
+
+  // actions
+  const actions = document.createElement('div'); actions.className = 'actions';
+
+  // promo
+  if(item.promo_code){
+    const promo = document.createElement('div'); promo.className = 'promo';
+    const codeBtn = document.createElement('button'); codeBtn.className = 'promo-code'; codeBtn.type = 'button';
+    codeBtn.textContent = item.promo_code;
+    const tip = document.createElement('span'); tip.className = 'promo-tip'; tip.textContent = '';
+    promo.appendChild(codeBtn); promo.appendChild(tip);
+    actions.appendChild(promo);
+
+    codeBtn.addEventListener('click', async () => {
+      const ok = await copyToClipboard(item.promo_code);
+      if(ok) flashCopied(codeBtn, tip);
+    });
+  }
+
+  // play button
+  const play = document.createElement('a'); play.className = 'btn-gam
