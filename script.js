@@ -1,132 +1,253 @@
-// === JekaVipBonus Script ===
+// /script.js — исправленная финальная версия
+// - загружает /data/goodWords.json и /data/failWords.json (anti-cache)
+// - показывает "приманку" из goodWords, затем плавно замедляет и показывает финал из объединённого списка
+// - финальное слово всегда оказывается в центре (визуально)
+// - длительность анимации ~7s (около +2s от короткого варианта)
+// - WebAudio для явных звуков (spin + click), confetti в блоке
+// - обработка промокод-кнопок и фейковой карточки (падение)
 
-// Загружаем JSON со словами
-let goodWords = [];
-let failWords = [];
+// --- Настройки
+const GOOD_JSON = '/data/goodWords.json';
+const FAIL_JSON = '/data/failWords.json';
 
-async function loadWords() {
-  try {
-    const goodRes = await fetch('/data/goodWords.json');
-    const failRes = await fetch('/data/failWords.json');
-    goodWords = await goodRes.json();
-    failWords = await failRes.json();
-  } catch (e) {
-    console.error('Ошибка загрузки JSON:', e);
-  }
-}
-loadWords();
+// DOM refs
+let reelEl, spinBtn, spinResultEl, confettiCanvas, cardsContainer;
 
-// ==== Звуки ====
-const spinSound = new Audio('https://cdn.jsdelivr.net/gh/jhancock532/audiofx/spin.mp3');
-const stopSound = new Audio('https://cdn.jsdelivr.net/gh/jhancock532/audiofx/click.mp3');
+document.addEventListener('DOMContentLoaded', () => {
+  reelEl = document.getElementById('reel');
+  spinBtn = document.getElementById('spinButton');
+  spinResultEl = document.getElementById('spinResult');
+  confettiCanvas = document.getElementById('confetti');
+  cardsContainer = document.getElementById('cards');
 
-// ==== Рандомайзер ====
-const reel = document.getElementById('reel');
-const spinButton = document.getElementById('spinButton');
-const spinResult = document.getElementById('spinResult');
-const confettiCanvas = document.getElementById('confetti');
-const confettiCtx = confettiCanvas.getContext('2d');
+  // attach spin handler
+  spinBtn && spinBtn.addEventListener('click', onSpinClick);
 
-let spinning = false;
-
-spinButton.addEventListener('click', async () => {
-  if (spinning) return;
-  spinning = true;
-  spinResult.textContent = '';
-  spinResult.classList.remove('win');
-  reel.innerHTML = '';
-
-  await loadWords();
-
-  const words = goodWords.length ? goodWords : ["Пусто"];
-  let currentIndex = 0;
-  let duration = 7000; // чуть дольше — +2 сек
-  let interval = 60;
-  let startTime = Date.now();
-
-  spinSound.currentTime = 0;
-  spinSound.volume = 0.8;
-  spinSound.play();
-
-  const spinInterval = setInterval(() => {
-    let word = words[currentIndex % words.length];
-    reel.innerHTML = `<div class="reel-item">${word}</div>`;
-    currentIndex++;
-    let elapsed = Date.now() - startTime;
-    if (elapsed > duration) {
-      clearInterval(spinInterval);
-      showResult();
-    } else if (elapsed > duration * 0.6) {
-      interval += 5;
+  // delegate promo copy and fake-card fall (if cards are rendered)
+  document.addEventListener('click', (e) => {
+    const promo = e.target.closest('.promo-btn');
+    if (promo) {
+      const code = promo.dataset.code || promo.textContent.trim();
+      if (code) {
+        navigator.clipboard.writeText(code).catch(()=>{}); // best-effort
+        promo.classList.add('copied');
+        const prev = promo.textContent;
+        promo.textContent = 'Скопировано';
+        setTimeout(()=>{ promo.textContent = prev; promo.classList.remove('copied'); }, 1200);
+      }
+      return;
     }
-  }, interval);
+
+    const playBtn = e.target.closest('.play-btn');
+    if (playBtn && playBtn.dataset.fake === 'true') {
+      const card = playBtn.closest('.casino-card');
+      if (card) {
+        card.classList.add('fall');
+        setTimeout(()=> card.remove(), 1400);
+      }
+    }
+  });
+
+  // optional: render cards from /data/casinos.json if you want
+  loadAndRenderCards();
+
+  // adjust confetti canvas size on resize
+  window.addEventListener('resize', () => {
+    if (confettiCanvas) {
+      confettiCanvas.width = confettiCanvas.offsetWidth;
+      confettiCanvas.height = confettiCanvas.offsetHeight;
+    }
+  });
 });
 
-function showResult() {
-  const fail = failWords.length ? failWords[Math.floor(Math.random() * failWords.length)] : "ничего";
-  reel.innerHTML = `<div class="reel-item" style="font-size:30px;color:#ff2ee8;text-shadow:0 0 15px #ff2ee8;">${fail}</div>`;
-  stopSound.currentTime = 0;
-  stopSound.volume = 0.9;
-  stopSound.play();
-  spinResult.textContent = "Поздравляю!";
-  spinResult.classList.add('win');
-  launchConfetti();
-  setTimeout(() => spinning = false, 2000);
+// --- load words with anti-cache
+async function loadJson(path) {
+  try {
+    const r = await fetch(`${path}?v=${Date.now()}`, {cache: 'no-store'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    console.warn('JSON load failed', path, e);
+    return [];
+  }
 }
 
-// ==== Конфетти ====
-function launchConfetti() {
-  const confettiCount = 80;
-  const confetti = [];
-
-  confettiCanvas.width = confettiCanvas.offsetWidth;
-  confettiCanvas.height = confettiCanvas.offsetHeight;
-
-  for (let i = 0; i < confettiCount; i++) {
-    confetti.push({
-      x: Math.random() * confettiCanvas.width,
-      y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-      size: Math.random() * 6 + 2,
-      speed: Math.random() * 3 + 2,
-      color: `hsl(${Math.random() * 360}, 100%, 60%)`
-    });
-  }
-
-  let frame;
-  function draw() {
-    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    confetti.forEach(c => {
-      confettiCtx.fillStyle = c.color;
-      confettiCtx.fillRect(c.x, c.y, c.size, c.size);
-      c.y += c.speed;
-      if (c.y > confettiCanvas.height) c.y = -10;
-    });
-    frame = requestAnimationFrame(draw);
-  }
-  draw();
-  setTimeout(() => cancelAnimationFrame(frame), 2500);
+// --- WebAudio helpers
+let audioCtx = null;
+let spinOsc = null;
+let spinGain = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function startSpinSound() {
+  try {
+    ensureAudio();
+    audioCtx.resume && audioCtx.resume();
+    if (spinOsc) try { spinOsc.stop(); } catch(e) {}
+    spinOsc = audioCtx.createOscillator();
+    spinGain = audioCtx.createGain();
+    spinOsc.type = 'sawtooth';
+    spinOsc.frequency.setValueAtTime(180, audioCtx.currentTime);
+    spinGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    spinOsc.connect(spinGain); spinGain.connect(audioCtx.destination);
+    spinOsc.start();
+    // gentle vibrato/frequency modulation for richness
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.type = 'sine'; lfo.frequency.value = 3; lfoGain.gain.value = 8;
+    lfo.connect(lfoGain);
+    lfoGain.connect(spinOsc.frequency);
+    lfo.start();
+    spinOsc._lfo = lfo; spinOsc._lfoGain = lfoGain;
+  } catch (e) { console.warn('startSpinSound failed', e); }
+}
+function stopSpinSound() {
+  try {
+    if (!audioCtx) return;
+    if (spinGain) spinGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    if (spinOsc) {
+      setTimeout(()=> {
+        try {
+          if (spinOsc._lfo) { spinOsc._lfo.stop(); spinOsc._lfo.disconnect(); }
+          spinOsc.stop(); spinOsc.disconnect();
+        } catch(e){}
+        spinOsc = null; spinGain = null;
+      }, 150);
+    }
+    // small click/pop
+    playClick();
+  } catch(e){ console.warn('stopSpinSound', e); }
+}
+function playClick() {
+  try {
+    ensureAudio();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(880, audioCtx.currentTime);
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    setTimeout(()=> { try{ o.stop(); } catch(e){} }, 140);
+  } catch(e){ console.warn('playClick', e); }
 }
 
-// ==== Промокоды на карточках ====
-document.addEventListener('click', e => {
-  const promo = e.target.closest('.promo-btn');
-  if (!promo) return;
-  const code = promo.textContent.trim();
-  navigator.clipboard.writeText(code);
-  promo.classList.add('copied');
-  promo.textContent = 'Скопировано!';
-  setTimeout(() => {
-    promo.textContent = code;
-    promo.classList.remove('copied');
-  }, 1500);
-});
+// --- helper easing
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
-// ==== Фейк-казик падение ====
-document.addEventListener('click', e => {
-  const card = e.target.closest('.casino-card.fake');
-  const btn = e.target.closest('.play-btn');
-  if (card && btn) {
-    card.classList.add('fall');
-    setTimeout(() => card.remove(), 1500);
+// --- global scheduling cleanup
+let scheduledIds = [];
+function clearScheduled() { scheduledIds.forEach(id => clearTimeout(id)); scheduledIds = []; }
+
+// --- spin logic
+let isSpinning = false;
+
+async function onSpinClick() {
+  if (isSpinning) return;
+  isSpinning = true;
+  spinBtn.disabled = true;
+  spinResultEl.textContent = '';
+  clearScheduled();
+
+  // load lists
+  const good = await loadJson(GOOD_JSON);
+  const fail = await loadJson(FAIL_JSON);
+  const goodList = Array.isArray(good) && good.length ? good : ['—'];
+  const failList = Array.isArray(fail) && fail.length ? fail : ['ничего'];
+
+  // start sound
+  startSpinSound();
+
+  // prepare sequence (we'll show "good" words during the spin)
+  const steps = 110;                  // number of visible "frames"
+  const totalDuration = 7000;         // ms (≈7s) — увеличенная длительность
+  const startTime = performance.now();
+
+  for (let i = 0; i < steps; i++) {
+    const t = i / (steps - 1);
+    const when = Math.round(easeOutCubic(t) * totalDuration);
+    const word = goodList[Math.floor(Math.random() * goodList.length)];
+    const id = setTimeout(() => {
+      showReelWord(word);
+    }, when);
+    scheduledIds.push(id);
   }
-});
+
+  // schedule final (in center) slightly after totalDuration
+  const finalWhen = totalDuration + 80;
+  const finalId = setTimeout(() => {
+    // stop spin sound, play stop
+    stopSpinSound();
+
+    // choose final from combined (honest random)
+    const combined = goodList.concat(failList);
+    const finalWord = combined[Math.floor(Math.random() * combined.length)];
+
+    showFinal(finalWord);
+
+    // confetti
+    try {
+      if (typeof confetti !== 'undefined' && confetti) {
+        const conf = confetti.create(confettiCanvas, { resize: true, useWorker: true });
+        conf({ particleCount: 110, spread: 90, ticks: 160, origin: { x: 0.5, y: 0.28 } });
+      }
+    } catch (e) { console.warn('confetti failed', e); }
+
+    // end
+    spinBtn.disabled = false;
+    isSpinning = false;
+  }, finalWhen);
+  scheduledIds.push(finalId);
+}
+
+// show a word in the reel (temporary)
+function showReelWord(word) {
+  if (!reelEl) return;
+  // sanitize minimal
+  const safe = String(word || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  reelEl.innerHTML = `<div class="reel-item">${safe}</div>`;
+}
+
+// show final centered word
+function showFinal(word) {
+  if (!reelEl) return;
+  const safe = String(word || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  reelEl.innerHTML = `<div class="reel-item final" style="font-size:28px;color:#ff2ee8;text-shadow:0 0 16px #ff2ee8">${safe}</div>`;
+  spinResultEl.textContent = 'Поздравляю!';
+  spinResultEl.classList.add('win');
+  setTimeout(()=> spinResultEl.classList.remove('win'), 1600);
+}
+
+// --- optional: load and render cards from /data/casinos.json (keeps previous behavior)
+async function loadAndRenderCards(){
+  try {
+    const r = await fetch(`/data/casinos.json?v=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok) return;
+    const list = await r.json();
+    if (!Array.isArray(list)) return;
+    renderCards(list);
+  } catch(e){ console.warn('loadAndRenderCards error', e); }
+}
+function renderCards(list) {
+  if (!cardsContainer) return;
+  cardsContainer.innerHTML = '';
+  list.forEach(item => {
+    const card = document.createElement('article');
+    card.className = 'casino-card';
+    if (item.fake) card.classList.add('fake');
+    const img = item.image || '';
+    card.innerHTML = `
+      <div class="card-img"><img src="${img}" alt="${item.name || ''}"></div>
+      <div class="card-body">
+        <h3 class="card-title">${item.name || ''}</h3>
+        <p class="card-desc">${item.bonus || ''}</p>
+        <div class="promo-wrap">
+          <button class="promo-btn" data-code="${item.promo_code || ''}">${item.promo_code || '—'}</button>
+        </div>
+        <button class="play-btn" ${item.fake ? 'data-fake="true"' : `data-url="${item.url || '#'}"`}>В игру</button>
+      </div>
+    `;
+    cardsContainer.appendChild(card);
+  });
+}
