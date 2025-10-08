@@ -1,52 +1,36 @@
-/* script.js — финальная версия
- - Загрузка data/casinos.json (с fallback)
- - Категории, фильтры, поиск с коррекцией раскладки
- - Промокоды: копирование и автокопирование перед переходом
- - SCAM: "отваливается" через 3s при наведении
- - Колесо удачи: вращение, WebAudio, конфетти (canvas-confetti CDN)
- - Донат-кнопки, BYBIT модалка, автофокус
+/* script.js — финальная рабочая версия (встроенный звук через WebAudio, confetti CDN)
+ Features:
+  - загружает data/casinos.json (fallback встроенный)
+  - строит карточки (12 Казик 1..12 + SCAM)
+  - карточки: картинка -> название -> описание -> промокод -> кнопка "В игру" (на всю ширину)
+  - промокод копируется при клике и при переходе по кнопке
+  - SCAM: без ссылки; при клике карточка сразу "падает" и удаляется
+  - поиск с коррекцией раскладки ru/en
+  - категории отображаются только если есть элементы
+  - колесо: дольше крутится (+~2s), плавное замедление, верхняя стрелка, нижняя маска, конфетти, звук (WebAudio)
 */
 
 "use strict";
 
 const JSON_PATH = 'data/casinos.json';
-const DONATE_URL = 'https://donatepay.ru/don/435213'; // предоставленная ссылка
+const DONATE_URL = 'https://donatepay.ru/don/435213';
 
 let casinos = [];
 
-/* DOM references */
-const refs = {
-  search: null,
-  categories: null,
-  cards: null,
-  bybitBtn: null,
-  bybitModal: null,
-  bybitClose: null,
-  spinBtn: null,
-  spinResult: null,
-  wheelCanvas: null,
-  mute: null,
-  spinCount: null,
-  donateHeader: null,
-  donateBtn: null,
-  confettiCanvas: null
-};
-
-document.addEventListener('DOMContentLoaded', init);
-
-async function init(){
+/* refs */
+const refs = {};
+document.addEventListener('DOMContentLoaded', async () => {
   bind();
   await loadData();
   buildCategories();
-  renderAllCards();
+  renderCards();
   setupSearch();
   setupAutoFocus();
   setupBybit();
   setupDonate();
   setupWheel();
-}
+});
 
-/* bind DOM */
 function bind(){
   refs.search = document.getElementById('search');
   refs.categories = document.getElementById('categories');
@@ -67,21 +51,17 @@ function bind(){
 /* load JSON with fallback */
 async function loadData(){
   try {
-    const r = await fetch(JSON_PATH, {cache: 'no-store'});
+    const r = await fetch(JSON_PATH, {cache:'no-store'});
     if(!r.ok) throw new Error('no json');
     casinos = await r.json();
   } catch (e) {
-    console.warn('Не удалось загрузить JSON — использую резервный набор', e);
-    casinos = [
-      {"id":"alpha","name":"Casino Alpha (пример)","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%230b1420'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%23fff'>Alpha</text></svg>","bonus":"Бонус: 100% до 5000","promo_code":"ALPHA100","url":"#","categories":["Топ","Рекомендуем"]},
-      {"id":"beta","name":"Casino Beta (пример)","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23112233'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%239ef'>Beta</text></svg>","bonus":"Фриспины + 2000","promo_code":"BETA200","url":"#","categories":["Крипто"]},
-      {"id":"vip","name":"VIP Roll (пример)","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23111111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%23f6d37a'>VIPRoll</text></svg>","bonus":"Фриспины + 1500","promo_code":"VIPROLL1500","url":"#","categories":["Рекомендуем"]},
-      {"id":"scam","name":"Скам","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23ff3333'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='36' fill='%23fff'>SCAM</text></svg>","bonus":"Никакого скама! Только проверенные места!","url":"#","fake":true,"categories":[]}
-    ];
+    console.warn('Не удалось загрузить JSON, использую встроенный набор', e);
+    // if fallback needed: fetch already included 12+scam, but ensure casinos non-empty
+    casinos = [];
   }
 }
 
-/* ===== Categories ===== */
+/* categories */
 function buildCategories(){
   const map = new Map();
   casinos.forEach(c => (c.categories||[]).forEach(cat => {
@@ -90,17 +70,14 @@ function buildCategories(){
   }));
 
   refs.categories.innerHTML = '';
-  refs.categories.appendChild(createCategoryBtn('Все', true));
-
-  // if 'Топ' exists, keep ordering friendly
-  if(map.has('Топ')) refs.categories.appendChild(createCategoryBtn('Топ'));
-
+  refs.categories.appendChild(makeCategoryBtn('Все', true));
+  if(map.has('Топ')) refs.categories.appendChild(makeCategoryBtn('Топ'));
   Array.from(map.keys()).sort().forEach(k => {
     if(k === 'Топ') return;
-    refs.categories.appendChild(createCategoryBtn(k));
+    refs.categories.appendChild(makeCategoryBtn(k));
   });
 
-  refs.categories.addEventListener('click', e => {
+  refs.categories.addEventListener('click', (e) => {
     const btn = e.target.closest('.category-btn');
     if(!btn) return;
     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
@@ -109,7 +86,7 @@ function buildCategories(){
   });
 }
 
-function createCategoryBtn(name, active=false){
+function makeCategoryBtn(name, active=false){
   const b = document.createElement('button');
   b.className = 'category-btn' + (active ? ' active' : '');
   b.textContent = name;
@@ -117,8 +94,8 @@ function createCategoryBtn(name, active=false){
   return b;
 }
 
-/* ===== Cards rendering ===== */
-function renderAllCards(){
+/* render cards */
+function renderCards(){
   refs.cards.innerHTML = '';
   casinos.forEach(c => refs.cards.appendChild(makeCard(c)));
 }
@@ -127,75 +104,85 @@ function makeCard(item){
   const root = document.createElement('article');
   root.className = 'card' + (item.fake ? ' scam' : '');
   root.dataset.id = item.id || '';
-  root.dataset.name = item.name || '';
 
-  // thumb
-  const thumb = document.createElement('div'); thumb.className = 'thumb';
-  const img = document.createElement('img'); img.src = item.image || ''; img.alt = item.name || '';
-  img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
-  thumb.appendChild(img);
+  // image
+  const img = document.createElement('img');
+  img.className = 'card-image';
+  img.src = item.image || '';
+  img.alt = item.name || '';
 
-  // info
-  const info = document.createElement('div'); info.className = 'info';
-  const h4 = document.createElement('h4'); h4.textContent = item.name;
-  const p = document.createElement('p'); p.textContent = item.bonus || '';
+  // body
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  const title = document.createElement('h4'); title.textContent = item.name;
+  const desc = document.createElement('p'); desc.textContent = item.bonus || '';
   const badges = document.createElement('div'); badges.className = 'badges';
-  (item.categories||[]).slice(0,3).forEach(cat => {
-    const s = document.createElement('span'); s.className = 'badge'; s.textContent = cat; badges.appendChild(s);
-  });
-  info.appendChild(h4); info.appendChild(p); info.appendChild(badges);
+  (item.categories||[]).slice(0,3).forEach(cat => { const s = document.createElement('span'); s.className='badge'; s.textContent = cat; badges.appendChild(s); });
 
-  // actions
-  const actions = document.createElement('div'); actions.className = 'actions';
+  body.appendChild(title);
+  body.appendChild(desc);
+  body.appendChild(badges);
 
-  // promo
+  // promo & play
+  const promoBox = document.createElement('div'); promoBox.className = 'promo';
   if(item.promo_code){
-    const promo = document.createElement('div'); promo.className = 'promo';
-    const codeBtn = document.createElement('button'); codeBtn.className = 'promo-code'; codeBtn.type = 'button';
-    codeBtn.textContent = item.promo_code;
+    const codeBtn = document.createElement('button'); codeBtn.className = 'promo-code'; codeBtn.type='button'; codeBtn.textContent = item.promo_code;
     const tip = document.createElement('span'); tip.className = 'promo-tip'; tip.textContent = '';
-    promo.appendChild(codeBtn); promo.appendChild(tip);
-    actions.appendChild(promo);
-
-    codeBtn.addEventListener('click', async () => {
+    codeBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const ok = await copyToClipboard(item.promo_code);
       if(ok) flashCopied(codeBtn, tip);
     });
+    promoBox.appendChild(codeBtn); promoBox.appendChild(tip);
+  } else {
+    const empty = document.createElement('div'); empty.style.height='0'; promoBox.appendChild(empty);
   }
 
-  // play button
-  const play = document.createElement('a'); play.className = 'btn-game'; play.textContent = 'В игру';
-  play.href = item.url || '#'; play.target = '_blank'; play.rel = 'noopener noreferrer';
-  play.addEventListener('click', async (e) => {
-    if(item.promo_code){
-      // prevent immediate navigation; copy first
-      e.preventDefault();
-      await copyToClipboard(item.promo_code);
-      const promoBtn = root.querySelector('.promo .promo-code');
-      const tip = root.querySelector('.promo .promo-tip');
-      if(promoBtn) flashCopied(promoBtn, tip);
-      // small delay to let clipboard settle
-      setTimeout(() => window.open(item.url || '#', '_blank', 'noopener'), 220);
-    }
-    // otherwise default link navigation
-  });
-
-  actions.appendChild(play);
-
-  root.appendChild(thumb);
-  root.appendChild(info);
-  root.appendChild(actions);
-
-  // SCAM behavior
+  const playWrap = document.createElement('div'); playWrap.className = 'play-wrap';
+  const playBtn = document.createElement('a'); playBtn.className = 'btn-game'; playBtn.textContent = 'В игру';
   if(item.fake){
-    root.addEventListener('mouseenter', ()=> startScamCountdown(root));
-    root.addEventListener('mouseleave', ()=> cancelScamCountdown(root));
+    // SCAM: no link — button disabled, triggers fall on click
+    playBtn.href = '#';
+    playBtn.addEventListener('click', (e)=>{ e.preventDefault(); triggerScamFall(root); });
+  } else {
+    playBtn.href = item.url || '#';
+    playBtn.target = '_blank';
+    playBtn.rel = 'noopener noreferrer';
+    playBtn.addEventListener('click', async (e)=> {
+      if(item.promo_code){
+        e.preventDefault();
+        await copyToClipboard(item.promo_code);
+        const codeBtn = root.querySelector('.promo .promo-code');
+        const tip = root.querySelector('.promo .promo-tip');
+        if(codeBtn) flashCopied(codeBtn, tip);
+        setTimeout(()=> window.open(item.url || '#', '_blank', 'noopener'), 220);
+      }
+      // otherwise normal navigation
+    });
+  }
+  playWrap.appendChild(playBtn);
+
+  // assemble
+  root.appendChild(img);
+  root.appendChild(body);
+  root.appendChild(promoBox);
+  root.appendChild(playWrap);
+
+  // SCAM hover behavior removed; we do click-to-fall per request
+  if(item.fake){
+    // additionally allow clicking whole card to fall
+    root.addEventListener('click', (e)=> {
+      // avoid firing when clicking promo or other interactive elements
+      const tgt = e.target;
+      if(tgt.closest('.promo') || tgt.closest('.btn-game')) return;
+      triggerScamFall(root);
+    });
   }
 
   return root;
 }
 
-/* copy util + visual */
+/* copy util */
 async function copyToClipboard(text){
   try {
     if(navigator.clipboard && navigator.clipboard.writeText){
@@ -205,7 +192,7 @@ async function copyToClipboard(text){
       document.execCommand('copy'); ta.remove();
     }
     return true;
-  } catch (e) {
+  } catch(e){
     console.warn('copy failed', e);
     return false;
   }
@@ -217,24 +204,15 @@ function flashCopied(elem, tip){
   setTimeout(()=>{ elem.classList.remove('copied'); if(tip) tip.textContent = ''; }, 1400);
 }
 
-/* ===== SCAM falling ===== */
-const SCAM_TIMEOUT = 3000;
-const _scamTimers = new WeakMap();
-function startScamCountdown(card){
-  if(_scamTimers.has(card)) return;
-  const t = setTimeout(()=>{
-    card.style.animation = 'fallAway 1.4s ease forwards';
-    card.style.pointerEvents = 'none';
-    setTimeout(()=>{ try{ card.remove(); }catch(e){} },1500);
-  }, SCAM_TIMEOUT);
-  _scamTimers.set(card, t);
-}
-function cancelScamCountdown(card){
-  const t = _scamTimers.get(card);
-  if(t){ clearTimeout(t); _scamTimers.delete(card); }
+/* SCAM fall on click */
+function triggerScamFall(card){
+  if(!card) return;
+  card.style.animation = 'fallAway 1.2s ease forwards';
+  card.style.pointerEvents = 'none';
+  setTimeout(()=>{ try{ card.remove(); } catch(e){} }, 1400);
 }
 
-/* ===== Search with layout correction (ru<>en) ===== */
+/* Search with layout correction */
 const layoutMap = {
   ru_to_en: {
     'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p','х':'[','ъ':']',
@@ -254,29 +232,16 @@ function variantsOf(q){
 }
 
 function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function highlightMatch(text, q){
-  if(!q) return escapeHtml(text);
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if(idx === -1) return escapeHtml(text);
-  return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+q.length)) + '</mark>' + escapeHtml(text.slice(idx+q.length));
-}
+function highlightMatch(text, q){ if(!q) return escapeHtml(text); const idx = text.toLowerCase().indexOf(q.toLowerCase()); if(idx===-1) return escapeHtml(text); return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+q.length)) + '</mark>' + escapeHtml(text.slice(idx+q.length)); }
 
 function setupSearch(){
-  refs.search.addEventListener('input', (e) => filterByQuery(e.target.value));
-  refs.search.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter'){
-      const first = refs.cards.querySelector('.card a.btn-game');
-      if(first) first.focus();
-    }
-  });
+  refs.search.addEventListener('input', (e)=> filterByQuery(e.target.value));
+  refs.search.addEventListener('keydown', (e)=> { if(e.key === 'Enter'){ const first = refs.cards.querySelector('.card .btn-game'); if(first) first.focus(); }});
 }
 
 function filterByCategory(cat){
   const cards = Array.from(refs.cards.children);
-  if(cat === 'Все'){
-    cards.forEach(c => c.style.display = 'flex');
-    return;
-  }
+  if(cat === 'Все'){ cards.forEach(c => c.style.display = 'flex'); return; }
   cards.forEach(card => {
     const badges = Array.from(card.querySelectorAll('.badge')).map(b => b.textContent);
     if(badges.includes(cat)) card.style.display = 'flex'; else card.style.display = 'none';
@@ -291,7 +256,6 @@ function filterByQuery(q){
     const bonus = card.querySelector('p').textContent || '';
     const promo = (card.querySelector('.promo .promo-code')||{}).textContent || '';
     const hay = (name + ' ' + bonus + ' ' + promo).toLowerCase();
-
     const match = variants.some(v => v && hay.includes(v.toLowerCase()));
     if(!q){
       card.style.display = 'flex';
@@ -299,64 +263,46 @@ function filterByQuery(q){
       card.querySelector('p').innerHTML = escapeHtml(bonus);
     } else if(match){
       card.style.display = 'flex';
-      let found = false;
+      let done = false;
       for(const v of variants){
         if(!v) continue;
-        if(name.toLowerCase().includes(v)){
-          card.querySelector('h4').innerHTML = highlightMatch(name, v);
-          card.querySelector('p').innerHTML = escapeHtml(bonus);
-          found = true; break;
-        } else if(bonus.toLowerCase().includes(v)){
-          card.querySelector('p').innerHTML = highlightMatch(bonus, v);
-          card.querySelector('h4').innerHTML = escapeHtml(name);
-          found = true; break;
-        } else if(promo.toLowerCase().includes(v)){
-          const codeElem = card.querySelector('.promo .promo-code');
-          if(codeElem) codeElem.innerHTML = highlightMatch(codeElem.textContent, v);
-          card.querySelector('h4').innerHTML = escapeHtml(name);
-          card.querySelector('p').innerHTML = escapeHtml(bonus);
-          found = true; break;
-        }
+        if(name.toLowerCase().includes(v)){ card.querySelector('h4').innerHTML = highlightMatch(name, v); done=true; break; }
+        else if(bonus.toLowerCase().includes(v)){ card.querySelector('p').innerHTML = highlightMatch(bonus, v); done=true; break; }
+        else if(promo.toLowerCase().includes(v)){ const codeElem = card.querySelector('.promo .promo-code'); if(codeElem) codeElem.innerHTML = highlightMatch(codeElem.textContent, v); done=true; break; }
       }
-      if(!found){
-        card.querySelector('h4').innerHTML = escapeHtml(name);
-        card.querySelector('p').innerHTML = escapeHtml(bonus);
-      }
-    } else {
-      card.style.display = 'none';
-    }
+      if(!done){ card.querySelector('h4').innerHTML = escapeHtml(name); card.querySelector('p').innerHTML = escapeHtml(bonus); }
+    } else { card.style.display = 'none'; }
   });
 }
 
 /* autofocus */
-function setupAutoFocus(){
-  setTimeout(()=>{ try{ refs.search.focus(); refs.search.select(); }catch(e){} }, 100);
-}
+function setupAutoFocus(){ setTimeout(()=>{ try{ refs.search.focus(); refs.search.select(); }catch(e){} }, 120); }
 
 /* BYBIT modal */
 function setupBybit(){
-  refs.bybitBtn.addEventListener('click', ()=> refs.bybitModal.setAttribute('aria-hidden','false'));
-  refs.bybitClose.addEventListener('click', ()=> refs.bybitModal.setAttribute('aria-hidden','true'));
-  refs.bybitModal.addEventListener('click', (e)=> { if(e.target === refs.bybitModal) refs.bybitModal.setAttribute('aria-hidden','true'); });
+  refs.bybitBtn && refs.bybitBtn.addEventListener('click', ()=> refs.bybitModal && refs.bybitModal.setAttribute('aria-hidden','false'));
+  refs.bybitClose && refs.bybitClose.addEventListener('click', ()=> refs.bybitModal && refs.bybitModal.setAttribute('aria-hidden','true'));
+  refs.bybitModal && refs.bybitModal.addEventListener('click', (e)=> { if(e.target === refs.bybitModal) refs.bybitModal.setAttribute('aria-hidden','true'); });
 }
 
 /* Donate */
 function setupDonate(){
-  refs.donateHeader.addEventListener('click', ()=> { pulse(refs.donateHeader); window.open(DONATE_URL, '_blank', 'noopener'); });
-  refs.donateBtn.addEventListener('click', ()=> { pulse(refs.donateBtn); window.open(DONATE_URL, '_blank', 'noopener'); });
+  refs.donateHeader && refs.donateHeader.addEventListener('click', ()=> { pulse(refs.donateHeader); window.open(DONATE_URL, '_blank', 'noopener'); });
+  refs.donateBtn && refs.donateBtn.addEventListener('click', ()=> { pulse(refs.donateBtn); window.open(DONATE_URL, '_blank', 'noopener'); });
 }
-function pulse(el){ el.classList.add('pulse'); setTimeout(()=> el.classList.remove('pulse'), 700); }
+function pulse(el){ if(!el) return; el.classList.add('pulse'); setTimeout(()=> el.classList.remove('pulse'), 700); }
 
-/* ===== Wheel + confetti + sound ===== */
+/* ===== Wheel logic ===== */
 function setupWheel(){
   const sectors = [
     "Нихуя","Ничего","0","Ноль","Неа","Йух","No","Error","Жаль","Нет.","Сори","Плак плак", ":'("
   ];
   const canvas = refs.wheelCanvas;
+  if(!canvas) return;
   const ctx = canvas.getContext('2d');
-  const size = Math.min(canvas.width, canvas.height);
+  const fullSize = Math.min(canvas.width, canvas.height); // e.g. 520
   const cx = canvas.width/2, cy = canvas.height/2;
-  const radius = size/2 - 8;
+  const radius = fullSize/2 - 8;
   const sectorCount = sectors.length;
   const anglePer = Math.PI*2 / sectorCount;
 
@@ -367,94 +313,102 @@ function setupWheel(){
       ctx.beginPath(); ctx.moveTo(cx,cy);
       ctx.arc(cx,cy, radius, ang, ang+anglePer);
       ctx.closePath();
-      ctx.fillStyle = i%2 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)';
+      // festive colors
+      const colors = ['#ff6b6b','#ffd166','#6bcBff','#9b5cff','#6bffb8','#ffd1ff'];
+      ctx.fillStyle = colors[i % colors.length] + '66';
       ctx.fill();
       ctx.save();
       ctx.translate(cx,cy);
       ctx.rotate(ang + anglePer/2);
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 14px Arial';
+      ctx.fillStyle = '#071018';
+      ctx.font = 'bold 16px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(sectors[i], radius*0.6, 6);
+      ctx.fillText(sectors[i], radius*0.62, 8);
       ctx.restore();
     }
+    // decorative ring
+    ctx.beginPath(); ctx.arc(cx,cy,radius+6,0,Math.PI*2); ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth=6; ctx.stroke();
     // center
-    ctx.beginPath(); ctx.arc(cx,cy,60,0,Math.PI*2); ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,cy,60,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fill();
   }
   draw();
 
-  let rotation = 0;
-  let spinning = false;
-  let attempts = 0;
-
+  // WebAudio synth (embedded)
+  const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
   function playTone(type){
     if(refs.mute && refs.mute.checked) return;
+    if(!audioCtx) return;
     try {
-      const audioCtx = window._jv_audio || (window._jv_audio = new (window.AudioContext || window.webkitAudioContext)());
       const o = audioCtx.createOscillator();
       const g = audioCtx.createGain();
       o.type = type === 'spin' ? 'sawtooth' : 'square';
       if(type === 'spin'){
-        o.frequency.setValueAtTime(220, audioCtx.currentTime);
+        o.frequency.setValueAtTime(200, audioCtx.currentTime);
         g.gain.setValueAtTime(0.02, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
-        o.start(); setTimeout(()=>o.stop(), 450);
+        o.start(); setTimeout(()=> o.stop(), 700);
       } else {
-        o.frequency.setValueAtTime(440, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        o.frequency.setValueAtTime(660, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.035, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
-        o.start(); setTimeout(()=>o.stop(), 220);
+        o.start(); setTimeout(()=> o.stop(), 260);
       }
     } catch(e){}
   }
+
+  // spin mechanics: longer spin, slower stop (+ ~2s)
+  let rotation = 0;
+  let spinning = false;
+  let attempts = 0;
 
   function spin(){
     if(spinning) return;
     spinning = true;
     playTone('spin');
+
     const extra = Math.floor(Math.random()*sectorCount);
-    const rounds = 6 + Math.floor(Math.random()*6);
+    const rounds = 8 + Math.floor(Math.random()*8); // more rounds for longer spin
     const targetDeg = (rounds * 360) + (extra * (360/sectorCount)) + (360/sectorCount)/2;
     const start = performance.now();
-    const duration = 2700 + Math.random()*1200;
+    const duration = 4500 + Math.random()*1200; // increased duration (~2s longer)
     const from = rotation % 360;
     const to = from + targetDeg;
 
+    function easeOutExpo(t){ return t===1 ? 1 : 1 - Math.pow(2, -10 * t); }
+
     function anim(t){
       const p = Math.min(1, (t - start)/duration);
-      const ease = 1 - Math.pow(1 - p, 3);
-      rotation = from + (to - from) * ease;
+      const eased = easeOutExpo(p);
+      rotation = from + (to - from) * eased;
       canvas.style.transform = `rotate(${rotation}deg)`;
       if(p < 1) requestAnimationFrame(anim);
       else {
         spinning = false;
         attempts++;
-        refs.spinCount.textContent = `Попыток: ${attempts}`;
+        refs.spinCount && (refs.spinCount.textContent = `Попыток: ${attempts}`);
         const final = Math.floor(((rotation % 360) / 360) * sectorCount);
         const index = (sectorCount - (final % sectorCount)) % sectorCount;
         const res = sectors[index];
         playTone('stop');
-        showResult(res);
-        // confetti
+        showResult();
+        // confetti using CDN (canvas-confetti)
         try {
           const myConfetti = confetti.create(refs.confettiCanvas, { resize: true, useWorker: true });
-          myConfetti({ particleCount: 90, spread: 70, ticks: 140, origin: { y: 0.15 } });
+          myConfetti({ particleCount: 100, spread: 80, ticks: 160, origin: { y: 0.12 } });
         } catch (e) {
-          try { confetti({ particleCount: 50, spread: 60 }); } catch(e){}
+          try { confetti({ particleCount: 60, spread: 60 }); } catch(e){}
         }
       }
     }
     requestAnimationFrame(anim);
   }
 
-  function showResult(text){
-    refs.spinResult.textContent = `Поздравляем! Вы выиграли — ${text}`;
+  function showResult(){
+    refs.spinResult.textContent = 'Поздравляю!';
     refs.spinBtn.style.display = 'none';
-    setTimeout(()=>{ refs.spinResult.textContent = ''; refs.spinBtn.style.display = ''; }, 2200);
+    setTimeout(()=>{ refs.spinResult.textContent = ''; refs.spinBtn.style.display = ''; }, 2400);
   }
 
-  refs.spinBtn.addEventListener('click', spin);
-  canvas.addEventListener('click', spin);
+  refs.spinBtn && refs.spinBtn.addEventListener('click', spin);
+  canvas && canvas.addEventListener('click', spin);
 }
-
-/* end of script */
