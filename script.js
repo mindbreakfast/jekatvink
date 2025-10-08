@@ -1,16 +1,9 @@
-/* script.js — финальная версия
- - анти-кеш: fetch('data/casinos.json?v=...')
- - крупные карточки (3 в ряд), адаптивность
- - промокоды: копирование + автокопирование перед переходом
- - SCAM: без ссылки, по клику карточка падает
- - колесо: праздничное, долгая плавная остановка (+ ~2s), pointer корректно указывает результат
- - конфетти запускается внутри блока колеса (confetti.create)
- - BYBIT modal, donate, автофокус, категории, поиск с раскладкой
-*/
-
+// script.js — техно-неон финальный
 "use strict";
 
-/* ====== Refs ====== */
+const JSON_PATH = 'data/casinos.json';
+const DONATE_URL = 'https://donatepay.ru/don/435213';
+
 const refs = {
   cards: null,
   categories: null,
@@ -28,25 +21,24 @@ const refs = {
   donateBtn: null
 };
 
-const JSON_PATH = 'data/casinos.json';
-const DONATE_URL = 'https://donatepay.ru/don/435213';
 let casinos = [];
+let wheelState = { rotation: 0, spinning: false, attempts: 0 };
 
 document.addEventListener('DOMContentLoaded', init);
 
-function init(){
+async function init(){
   bindRefs();
-  loadData().then(()=> {
-    buildCategories();
-    renderCards();
-    setupSearch();
-    setupAutoFocus();
-    setupBybit();
-    setupDonate();
-    setupWheel();
-  });
+  await loadData();
+  buildCategories();
+  renderCards();
+  setupSearch();
+  setupAutoFocus();
+  setupBybit();
+  setupDonate();
+  setupWheel();
 }
 
+/* ===== bind refs ===== */
 function bindRefs(){
   refs.cards = document.getElementById('cards');
   refs.categories = document.getElementById('categories');
@@ -64,39 +56,36 @@ function bindRefs(){
   refs.donateBtn = document.getElementById('donate-btn');
 }
 
-/* ====== Load JSON (anti-cache) ====== */
+/* ===== load JSON with anti-cache ===== */
 async function loadData(){
   try {
-    const res = await fetch(`data/casinos.json?v=${Date.now()}`, {cache:'no-store'});
+    const res = await fetch(`${JSON_PATH}?v=${Date.now()}`, { cache: 'no-store' });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     casinos = await res.json();
-  } catch(e){
-    console.warn('Ошибка загрузки JSON или пустой ответ — используем встроенный набор', e);
-    // fallback uses the file contents we already provided in data; but leave casinos as empty to avoid duplicates
-    // if empty, you can still edit data/casinos.json externally
-    if(!Array.isArray(casinos) || casinos.length === 0){
-      // minimal fallback (shouldn't be necessary if file exists)
-      casinos = [
-        { id: 'demo1', name: 'Демо 1', image: '', bonus: 'Бонус демо', promo_code: 'DEMO1', url: '#', categories: ['Топ'] }
-      ];
-    }
+    // safety: ensure array
+    if(!Array.isArray(casinos)) casinos = [];
+  } catch (e) {
+    console.warn('Не удалось загрузить JSON, используем fallback', e);
+    // fallback minimal sample if file missing (but user already has data/casinos.json)
+    casinos = [
+      { id:'k1', name:'Казик 1', image:'', bonus:'Демо бонус 1', promo_code:'KZ1', url:'#', categories:['Топ'] }
+    ];
   }
 }
 
-/* ====== Categories ====== */
+/* ===== categories ===== */
 function buildCategories(){
-  const map = new Map();
-  casinos.forEach(c => (c.categories||[]).forEach(cat => {
-    if(!map.has(cat)) map.set(cat, 0);
-    map.set(cat, map.get(cat)+1);
-  }));
-
+  const map = new Set();
+  casinos.forEach(c => (c.categories||[]).forEach(cat => map.add(cat)));
   refs.categories.innerHTML = '';
-  refs.categories.appendChild(categoryBtn('Все', true));
-  if(map.has('Топ')) refs.categories.appendChild(categoryBtn('Топ'));
-  Array.from(map.keys()).sort().forEach(k => { if(k !== 'Топ') refs.categories.appendChild(categoryBtn(k)); });
+  refs.categories.appendChild(createCategoryBtn('Все', true));
+  if(map.has('Топ')) refs.categories.appendChild(createCategoryBtn('Топ'));
+  Array.from(map).sort().forEach(cat => {
+    if(cat === 'Топ') return;
+    refs.categories.appendChild(createCategoryBtn(cat));
+  });
 
-  refs.categories.addEventListener('click', (e)=>{
+  refs.categories.addEventListener('click', e => {
     const btn = e.target.closest('.category-btn');
     if(!btn) return;
     document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('active'));
@@ -104,7 +93,7 @@ function buildCategories(){
     filterByCategory(btn.dataset.cat);
   });
 }
-function categoryBtn(name, active=false){
+function createCategoryBtn(name, active=false){
   const b = document.createElement('button');
   b.className = 'category-btn' + (active ? ' active' : '');
   b.dataset.cat = name;
@@ -112,54 +101,57 @@ function categoryBtn(name, active=false){
   return b;
 }
 
-/* ====== Render Cards ====== */
+/* ===== render cards ===== */
 function renderCards(){
   refs.cards.innerHTML = '';
-  casinos.forEach(item => refs.cards.appendChild(renderCard(item)));
+  casinos.forEach(c => refs.cards.appendChild(makeCard(c)));
 }
 
-function renderCard(item){
+function makeCard(item){
   const root = document.createElement('article');
   root.className = 'card' + (item.fake ? ' scam' : '');
   root.dataset.id = item.id || '';
 
-  // image
+  // image (use provided image or placeholder - single common placeholder)
   const img = document.createElement('img');
   img.className = 'card-image';
-  img.src = item.image || placeholderSVG(item.name);
+  img.src = item.image || placeholderSVG(item.name || 'Казик');
   img.alt = item.name || '';
 
   // body
   const body = document.createElement('div'); body.className = 'card-body';
-  const title = document.createElement('h4'); title.textContent = item.name;
+  const title = document.createElement('h4'); title.textContent = item.name || '';
   const desc = document.createElement('p'); desc.textContent = item.bonus || '';
   const badges = document.createElement('div'); badges.className = 'badges';
-  (item.categories||[]).slice(0,3).forEach(cat => { const s = document.createElement('span'); s.className='badge'; s.textContent = cat; badges.appendChild(s); });
-
+  (item.categories||[]).slice(0,3).forEach(cat => {
+    const b = document.createElement('span'); b.className = 'badge'; b.textContent = cat; badges.appendChild(b);
+  });
   body.appendChild(title); body.appendChild(desc); body.appendChild(badges);
 
-  // promo
-  const promoBox = document.createElement('div'); promoBox.className = 'promo';
+  // promo row
+  const promoRow = document.createElement('div'); promoRow.className = 'promo';
   if(item.promo_code){
-    const codeBtn = document.createElement('button'); codeBtn.className='promo-code'; codeBtn.type='button'; codeBtn.textContent = item.promo_code;
-    const tip = document.createElement('span'); tip.className='promo-tip'; tip.textContent = '';
-    codeBtn.addEventListener('click', async (ev) => {
+    const codeBtn = document.createElement('button'); codeBtn.className = 'promo-code'; codeBtn.type='button'; codeBtn.textContent = item.promo_code;
+    const tip = document.createElement('span'); tip.className = 'promo-tip'; tip.textContent = '';
+    codeBtn.addEventListener('click', async ev=>{
       ev.stopPropagation();
       const ok = await copyToClipboard(item.promo_code);
       if(ok) flashCopied(codeBtn, tip);
     });
-    promoBox.appendChild(codeBtn); promoBox.appendChild(tip);
+    promoRow.appendChild(codeBtn);
+    promoRow.appendChild(tip);
   } else {
-    const spacer = document.createElement('div'); spacer.style.height='0'; promoBox.appendChild(spacer);
+    promoRow.appendChild(document.createElement('div'));
   }
 
-  // play button (full width)
-  const playWrap = document.createElement('div'); playWrap.className='play-wrap';
-  const playBtn = document.createElement('a'); playBtn.className='btn-game'; playBtn.textContent = 'В игру';
+  // play button full width
+  const playWrap = document.createElement('div'); playWrap.className = 'play-wrap';
+  const playBtn = document.createElement('a'); playBtn.className = 'btn-game'; playBtn.textContent = 'В игру';
+
   if(item.fake){
     playBtn.href = '#';
-    playBtn.addEventListener('click', (e) => { e.preventDefault(); triggerScamFall(root); });
-    // clicking anywhere (except promo) also triggers fall
+    playBtn.addEventListener('click', (e)=>{ e.preventDefault(); triggerScamFall(root); });
+    // clicking card area (except on promo) also triggers fall
     root.addEventListener('click', (e)=>{
       if(e.target.closest('.promo') || e.target.closest('.btn-game')) return;
       triggerScamFall(root);
@@ -168,7 +160,7 @@ function renderCard(item){
     playBtn.href = item.url || '#';
     playBtn.target = '_blank';
     playBtn.rel = 'noopener noreferrer';
-    playBtn.addEventListener('click', async (e) => {
+    playBtn.addEventListener('click', async (e)=>{
       if(item.promo_code){
         e.preventDefault();
         await copyToClipboard(item.promo_code);
@@ -177,7 +169,6 @@ function renderCard(item){
         if(codeBtn) flashCopied(codeBtn, tip);
         setTimeout(()=> window.open(item.url || '#', '_blank', 'noopener'), 220);
       }
-      // else normal behavior
     });
   }
   playWrap.appendChild(playBtn);
@@ -185,19 +176,19 @@ function renderCard(item){
   // assemble
   root.appendChild(img);
   root.appendChild(body);
-  root.appendChild(promoBox);
+  root.appendChild(promoRow);
   root.appendChild(playWrap);
 
   return root;
 }
 
-/* Placeholder SVG if image missing */
-function placeholderSVG(name){
-  const txt = encodeURIComponent(name || '');
-  return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%230b1626'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>${txt}</text></svg>`;
+/* placeholder single-image (data URI) */
+function placeholderSVG(text){
+  const t = encodeURIComponent(text || 'Казик');
+  return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%2324495b'/><stop offset='1' stop-color='%2312192a'/></linearGradient></defs><rect width='100%' height='100%' fill='url(%23g)' /><text x='50%' y='50%' font-family='Arial' font-size='60' fill='%23fff' dominant-baseline='middle' text-anchor='middle'>${t}</text></svg>`;
 }
 
-/* ====== Copy utils ====== */
+/* ===== copy util ===== */
 async function copyToClipboard(text){
   try {
     if(navigator.clipboard && navigator.clipboard.writeText){
@@ -219,15 +210,15 @@ function flashCopied(elem, tip){
   setTimeout(()=>{ elem.classList.remove('copied'); if(tip) tip.textContent = ''; }, 1400);
 }
 
-/* ====== SCAM fall ====== */
+/* ===== SCAM fall ===== */
 function triggerScamFall(card){
   if(!card) return;
   card.style.animation = 'fallAway 1.2s ease forwards';
   card.style.pointerEvents = 'none';
-  setTimeout(()=>{ try{ card.remove(); } catch(e){} }, 1400);
+  setTimeout(()=>{ try{ card.remove(); }catch(e){} }, 1400);
 }
 
-/* ====== Search (with layout correction ru<->en) ====== */
+/* ===== Search with layout correction (ru<->en) ===== */
 const layoutMap = {
   ru_to_en: {
     'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p','х':'[','ъ':']',
@@ -235,8 +226,7 @@ const layoutMap = {
     'я':'z','ч':'x','с':'c','м':'v','и':'b','т':'n','ь':'m','б':',','ю':'.'
   }
 };
-const en_to_ru = Object.fromEntries(Object.entries(layoutMap.ru_to_en).map(([k,v]) => [v,k]));
-
+const en_to_ru = Object.fromEntries(Object.entries(layoutMap.ru_to_en).map(([k,v])=>[v,k]));
 function variantsOf(q){
   q = (q||'').trim();
   if(!q) return [''];
@@ -248,16 +238,16 @@ function variantsOf(q){
 
 function setupSearch(){
   if(!refs.search) return;
-  refs.search.addEventListener('input', (e)=> filterByQuery(e.target.value));
+  refs.search.addEventListener('input', e => filterByQuery(e.target.value));
   refs.search.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ const first = refs.cards.querySelector('.card .btn-game'); if(first) first.focus(); }});
 }
 
 function filterByCategory(cat){
   const cards = Array.from(refs.cards.children);
-  if(cat === 'Все'){ cards.forEach(c=>c.style.display='flex'); return; }
+  if(cat === 'Все'){ cards.forEach(c => c.style.display = 'flex'); return; }
   cards.forEach(card => {
     const badges = Array.from(card.querySelectorAll('.badge')).map(b => b.textContent);
-    if(badges.includes(cat)) card.style.display = 'flex'; else card.style.display = 'none';
+    card.style.display = badges.includes(cat) ? 'flex' : 'none';
   });
 }
 
@@ -276,198 +266,188 @@ function filterByQuery(q){
       card.querySelector('p').innerHTML = escapeHtml(bonus);
     } else if(match){
       card.style.display = 'flex';
-      let done = false;
+      let found = false;
       for(const v of variants){
         if(!v) continue;
-        if(name.toLowerCase().includes(v)){ card.querySelector('h4').innerHTML = highlightMatch(name, v); done=true; break; }
-        else if(bonus.toLowerCase().includes(v)){ card.querySelector('p').innerHTML = highlightMatch(bonus, v); done=true; break; }
-        else if(promo.toLowerCase().includes(v)){ const codeElem = card.querySelector('.promo .promo-code'); if(codeElem) codeElem.innerHTML = highlightMatch(codeElem.textContent, v); done=true; break; }
+        if(name.toLowerCase().includes(v)){ card.querySelector('h4').innerHTML = highlightMatch(name, v); found=true; break; }
+        if(bonus.toLowerCase().includes(v)){ card.querySelector('p').innerHTML = highlightMatch(bonus, v); found=true; break; }
+        if(promo.toLowerCase().includes(v)){ const codeElem = card.querySelector('.promo .promo-code'); if(codeElem) codeElem.innerHTML = highlightMatch(codeElem.textContent, v); found=true; break; }
       }
-      if(!done){ card.querySelector('h4').innerHTML = escapeHtml(name); card.querySelector('p').innerHTML = escapeHtml(bonus); }
+      if(!found){ card.querySelector('h4').innerHTML = escapeHtml(name); card.querySelector('p').innerHTML = escapeHtml(bonus); }
     } else {
       card.style.display = 'none';
     }
   });
 }
 
-function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function highlightMatch(text, q){ if(!q) return escapeHtml(text); const idx = text.toLowerCase().indexOf(q.toLowerCase()); if(idx===-1) return escapeHtml(text); return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+q.length)) + '</mark>' + escapeHtml(text.slice(idx+q.length)); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function highlightMatch(text, q){ if(!q) return escapeHtml(text); const idx = text.toLowerCase().indexOf(q.toLowerCase()); if(idx === -1) return escapeHtml(text); return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+q.length)) + '</mark>' + escapeHtml(text.slice(idx+q.length)); }
 
-/* ====== Autofocus ====== */
+/* ===== autofocus ===== */
 function setupAutoFocus(){ setTimeout(()=>{ try{ refs.search && refs.search.focus(); refs.search && refs.search.select(); } catch(e){} }, 120); }
 
-/* ====== BYBIT modal ====== */
+/* ===== BYBIT modal ===== */
 function setupBybit(){
   refs.bybitBtn && refs.bybitBtn.addEventListener('click', ()=> refs.bybitModal && refs.bybitModal.setAttribute('aria-hidden','false'));
   refs.bybitClose && refs.bybitClose.addEventListener('click', ()=> refs.bybitModal && refs.bybitModal.setAttribute('aria-hidden','true'));
-  refs.bybitModal && refs.bybitModal.addEventListener('click', (e)=> { if(e.target === refs.bybitModal) refs.bybitModal.setAttribute('aria-hidden','true'); });
+  refs.bybitModal && refs.bybitModal.addEventListener('click', e => { if(e.target === refs.bybitModal) refs.bybitModal.setAttribute('aria-hidden','true'); });
 }
 
-/* ====== Donate ====== */
+/* ===== Donate ===== */
 function setupDonate(){
-  refs.donateHeader && refs.donateHeader.addEventListener('click', ()=> { pulse(refs.donateHeader); window.open(DONATE_URL, '_blank', 'noopener'); });
-  refs.donateBtn && refs.donateBtn.addEventListener('click', ()=> { pulse(refs.donateBtn); window.open(DONATE_URL, '_blank', 'noopener'); });
+  refs.donateHeader && refs.donateHeader.addEventListener('click', ()=>{ pulse(refs.donateHeader); window.open(DONATE_URL, '_blank', 'noopener'); });
+  refs.donateBtn && refs.donateBtn.addEventListener('click', ()=>{ pulse(refs.donateBtn); window.open(DONATE_URL, '_blank', 'noopener'); });
 }
-function pulse(el){ if(!el) return; el.classList.add('pulse'); setTimeout(()=> el.classList.remove('pulse'), 700); }
+function pulse(el){ if(!el) return; el.classList.add('pulse'); setTimeout(()=>el.classList.remove('pulse'), 700); }
 
-/* ====== Wheel ====== */
+/* ===== Wheel (pointer aligning to chosen sector) ===== */
 function setupWheel(){
   const sectors = [
     "Нихуя","Ничего","0","Ноль","Неа","Йух","No","Error","Жаль","Нет.","Сори","Плак плак", ":'("
   ];
   const canvas = refs.wheelCanvas;
-  const confettiCanvas = refs.confettiCanvas;
+  const confCanvas = refs.confettiCanvas;
   if(!canvas) return;
   const ctx = canvas.getContext('2d');
-  const size = Math.min(canvas.width, canvas.height); // e.g. 520
-  const cx = canvas.width/2, cy = canvas.height/2;
-  const radius = size/2 - 8;
+
   const sectorCount = sectors.length;
   const sectorAngle = 360 / sectorCount;
-  const anglePer = Math.PI*2 / sectorCount;
+  const anglePer = (Math.PI*2) / sectorCount;
 
-  // draw festive wheel
+  // draw wheel with festive colors
   function drawWheel(){
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    const colors = ['#FFB3C1','#FFD699','#B3ECFF','#E2B3FF','#B8FFDA','#FFF0B3'];
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const colors = ['#8e2de2','#da22ff','#ff7eb3','#ffb86b','#7afcff','#4be1a0'];
     for(let i=0;i<sectorCount;i++){
       const ang = i * anglePer - Math.PI/2; // start from top
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, radius, ang, ang + anglePer);
+      ctx.moveTo(w/2, h/2);
+      ctx.arc(w/2, h/2, (Math.min(w,h)/2)-8, ang, ang + anglePer);
       ctx.closePath();
-      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillStyle = hexWithAlpha(colors[i % colors.length], 0.95);
       ctx.fill();
+
       // text
       ctx.save();
-      ctx.translate(cx, cy);
+      ctx.translate(w/2, h/2);
       ctx.rotate(ang + anglePer/2);
       ctx.fillStyle = '#071018';
-      ctx.font = 'bold 16px Arial';
+      ctx.font = 'bold 16px Inter, Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(sectors[i], radius*0.58, 6);
+      ctx.fillText(sectors[i], (Math.min(w,h)/2)*0.60, 6);
       ctx.restore();
     }
     // ring
-    ctx.beginPath(); ctx.arc(cx,cy,radius+6,0,Math.PI*2); ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.stroke();
-    // center button visual
-    ctx.beginPath(); ctx.arc(cx,cy,60,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fill();
+    ctx.beginPath();
+    ctx.arc(w/2,h/2,(Math.min(w,h)/2)-4,0,Math.PI*2);
+    ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.stroke();
+    // center circle
+    ctx.beginPath(); ctx.arc(w/2,h/2,58,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fill();
   }
-
   drawWheel();
 
-  // synth sound (WebAudio)
+  // WebAudio synth
   const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
-  function playTone(type){
+  function playTone(kind){
     if(refs.mute && refs.mute.checked) return;
     if(!audioCtx) return;
     try {
       const o = audioCtx.createOscillator();
       const g = audioCtx.createGain();
-      o.type = type === 'spin' ? 'sawtooth' : 'triangle';
-      if(type === 'spin'){
-        o.frequency.setValueAtTime(200, audioCtx.currentTime);
+      o.type = kind === 'spin' ? 'sawtooth' : 'triangle';
+      if(kind === 'spin'){
+        o.frequency.setValueAtTime(220, audioCtx.currentTime);
         g.gain.setValueAtTime(0.02, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
-        o.start(); setTimeout(()=> o.stop(), 900);
+        o.start(); setTimeout(()=>o.stop(), 1000);
       } else {
-        o.frequency.setValueAtTime(740, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        o.frequency.setValueAtTime(880, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.035, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
-        o.start(); setTimeout(()=> o.stop(), 260);
+        o.start(); setTimeout(()=>o.stop(), 260);
       }
     } catch(e){}
   }
 
-  // spin state
-  let rotation = 0; // degrees
-  let spinning = false;
-  let attempts = 0;
-
+  // animate spin so that pointer points to chosen sector
   function spin(){
-    if(spinning) return;
-    spinning = true;
+    if(wheelState.spinning) return;
+    wheelState.spinning = true;
+    // ensure audio context resumed on user gesture (browser autoplay policy)
+    try { audioCtx && audioCtx.resume(); } catch(e){}
+
     playTone('spin');
-
-    // pick random sector index externally (for visual fairness)
     const targetIndex = Math.floor(Math.random() * sectorCount);
-    // compute target rotation so that chosen sector ends at top (pointer at 270deg -> top)
-    // we want (startAngle + rotation) such that pointerAngle (270) lies within sector
-    // simpler: compute the wheel angle we need so that sector's center aligns with pointer(270)
-    const sectorCenterAngle = targetIndex * sectorAngle + sectorAngle/2; // degrees from 0 (3 o'clock)
-    // canvas drawing was shifted by -90deg so earlier we used -90; but we'll use formula:
-    // targetRotationDegrees so that (sectorCenterAngle + rotation) % 360 === 270
-    // => rotation === (270 - sectorCenterAngle) mod 360
-    const desiredRotationForIndex = (270 - sectorCenterAngle + 360) % 360;
 
-    // we want many rounds plus this offset
-    const rounds = 6 + Math.floor(Math.random() * 4); // 6-9 rounds
-    const targetTotalRotation = rounds * 360 + desiredRotationForIndex;
+    // sector center angle in degrees (0 at 3 o'clock, clockwise)
+    const sectorCenter = (targetIndex * sectorAngle) + sectorAngle/2; // degrees
+    // we want sector center to end at pointer at top (which is -90deg)
+    // desiredRotationDegrees such that (sectorCenter + rotation) % 360 === 270 (which is -90)
+    // => rotation ≡ 270 - sectorCenter (mod 360)
+    const desiredRotationForIndex = (270 - sectorCenter + 360) % 360;
+
+    // pick rounds and target
+    const rounds = 6 + Math.floor(Math.random() * 4); // 6..9
+    const targetTotal = rounds * 360 + desiredRotationForIndex;
 
     const start = performance.now();
-    const duration = 4500 + Math.random() * 1400; // longer / smoother (~4.5-6s)
-    const from = rotation;
-    const to = rotation + targetTotalRotation;
+    const duration = 4800 + Math.random() * 1500; // ~4.8-6.3s
+    const from = wheelState.rotation;
+    const to = from + targetTotal;
 
-    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+    function easeOutExpo(t){ return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
 
-    function animate(now){
+    function frame(now){
       const t = Math.min(1, (now - start) / duration);
-      const eased = easeOutCubic(t);
-      rotation = from + (to - from) * eased;
-      canvas.style.transform = `rotate(${rotation}deg)`;
-      if(t < 1) requestAnimationFrame(animate);
-      else {
-        spinning = false;
-        attempts++;
-        refs.spinCount && (refs.spinCount.textContent = `Попыток: ${attempts}`);
-        // compute sector at pointer:
-        const normalized = ((270 - (rotation % 360) ) + 360) % 360; // in [0,360)
-        const index = Math.floor(normalized / sectorAngle) % sectorCount;
-        // show simple congratulation
+      const eased = easeOutExpo(t);
+      wheelState.rotation = from + (to - from) * eased;
+      refs.wheelCanvas.style.transform = `rotate(${wheelState.rotation}deg)`;
+      if(t < 1){
+        requestAnimationFrame(frame);
+      } else {
+        wheelState.spinning = false;
+        wheelState.attempts++;
+        refs.spinCount && (refs.spinCount.textContent = `Попыток: ${wheelState.attempts}`);
+        // compute final index by reverse calculation
+        const normalized = ((270 - (wheelState.rotation % 360) ) + 360) % 360; // degrees in [0,360)
+        const idx = Math.floor(normalized / sectorAngle) % sectorCount;
+        // show simple congratulation (no prize text per request)
         refs.spinResult && (refs.spinResult.textContent = 'Поздравляю!');
         playTone('stop');
         // confetti inside wheel area
         try {
-          const conf = confetti.create(confettiCanvasForWheel(), { resize: true, useWorker: true });
-          conf({ particleCount: 110, spread: 90, ticks: 160, origin: { x: 0.5, y: 0.25 } });
+          const conf = confetti.create(confCanvas || window.confetti, { resize: true, useWorker: true });
+          if(refs.confettiCanvas) conf = confetti.create(refs.confettiCanvas, { resize: true, useWorker: true });
+          (conf || confetti)({ particleCount: 110, spread: 90, ticks: 160, origin: { x: 0.5, y: 0.25 } });
         } catch(e){
-          try{ confetti({particleCount:60, spread:60}); }catch(e){}
+          try { confetti({ particleCount: 60, spread: 60 }); } catch(e){}
         }
-        // clear message after timeout
+        // clear text shortly after
         setTimeout(()=>{ refs.spinResult && (refs.spinResult.textContent = ''); }, 2400);
       }
     }
-    requestAnimationFrame(animate);
+    requestAnimationFrame(frame);
   }
 
-  // confetti canvas scoping: return element inside wheel viewport if possible
-  function confettiCanvasForWheel(){
-    // try to use the confetti canvas defined in DOM inside wheel block
-    if(refs.confettiCanvas) return refs.confettiCanvas;
-    return null;
-  }
+  // local confCanvas var for try/fallback
+  const confCanvas = refs.confettiCanvas || null;
 
+  // events
   refs.spinBtn && refs.spinBtn.addEventListener('click', spin);
   canvas && canvas.addEventListener('click', spin);
 }
 
-/* ====== Utilities ====== */
-function copyToClipboard(text){
-  try {
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      return navigator.clipboard.writeText(text);
-    } else {
-      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); ta.remove();
-      return Promise.resolve();
-    }
-  } catch(e){
-    return Promise.reject(e);
-  }
+/* small helper: hex color to rgba string with alpha */
+function hexWithAlpha(hex, a){
+  // expect #rrggbb
+  const c = hex.replace('#','');
+  if(c.length !== 6) return hex;
+  const r = parseInt(c.substring(0,2),16);
+  const g = parseInt(c.substring(2,4),16);
+  const b = parseInt(c.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
 }
 
-/* helpers for search highlighting */
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* ===== end of file ===== */
 
-/* ====== End ====== */
