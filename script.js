@@ -256,4 +256,74 @@ function setupSpin(){
     list.getBoundingClientRect();
 
     // animate with CSS transition — ease-out feeling
-    const duration = 5000; // 5 sec total as
+    const duration = 5000; // 5 sec total as requested
+    list.style.transition = `transform ${duration}ms cubic-bezier(.16,.9,.07,1)`;
+    list.style.transform = `translateY(${finalTranslate}px)`;
+
+    // when transition ends: finalize
+    const onEnd = async () => {
+      list.removeEventListener('transitionend', onEnd);
+      try { spinAudio.pause(); spinAudio.currentTime = 0; } catch(e){}
+      try { winAudio.currentTime = 0; await winAudio.play(); } catch(e){}
+      // show overlay (no layout shift)
+      showOverlay("Поздравляю!");
+      // highlight final visually
+      const lastIt = list.querySelector('.reel-item:last-child');
+      if (lastIt) {
+        lastIt.style.color = '#ffd08a';
+        lastIt.style.transform = 'scale(1.05)';
+        lastIt.style.transition = 'transform .25s ease';
+      }
+      launchConfetti();
+      setTimeout(()=> {
+        hideOverlay();
+        // cleanup: leave final word visible (list at translated pos). can optionally reset list after
+        try{ if (lastIt){ lastIt.style.transform=''; lastIt.style.color=''; } } catch(e){}
+        isSpinning = false;
+        spinButton.disabled = false;
+      }, 1600);
+    };
+    list.addEventListener('transitionend', onEnd);
+  });
+}
+
+/* Utility: shuffle */
+function shuffle(arr){
+  for (let i = arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* overlay helpers */
+function showOverlay(text){
+  overlay.textContent = text || "";
+  overlay.style.opacity = "1";
+  overlay.style.transform = "translateX(-50%) scale(1.02)";
+}
+function hideOverlay(){
+  overlay.style.opacity = "0";
+  overlay.style.transform = "translateX(-50%) scale(.98)";
+}
+
+/* ----------------- utility: copy fallback ----------------- */
+async function tryCopy(text){
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch(e){
+    // fallback (older)
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+      return true;
+    } catch(e2){ return false; }
+  }
+}
+
+/* ----------------- Optional: if you dynamically render cards from JSON, you can implement that here.
+   For now we operate on static .card entries already present in index.html.  */
+
+/* -------------- End of script -------------- */
