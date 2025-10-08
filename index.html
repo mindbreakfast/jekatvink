@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JekaVipBonus.ru</title>
-  <meta name="description" content="Жека Твинк" />
+  <title>JekaVipBonus - проверенно</title>
+  <meta name="description" content="Список казов" />
   <link rel="stylesheet" href="/styles.css">
   <!-- confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
@@ -15,10 +15,10 @@
     <div class="left-h">
       <div class="logo">JekaVipBonus<span class="dot">.ru</span></div>
       <nav class="socials" aria-label="Соцсети">
-        <a class="social yt" href="#" target="_blank" rel="noopener noreferrer" title="YouTube">YT</a>
-        <a class="social kick" href="#" target="_blank" rel="noopener noreferrer" title="Kick">Kick</a>
-        <a class="social tg" href="#" target="_blank" rel="noopener noreferrer" title="Telegram">TG</a>
-        <a class="social vk" href="#" target="_blank" rel="noopener noreferrer" title="VK">VK</a>
+        <a class="social yt" href="#" title="YouTube">YT</a>
+        <a class="social kick" href="#" title="Kick">Kick</a>
+        <a class="social tg" href="#" title="Telegram">TG</a>
+        <a class="social vk" href="#" title="VK">VK</a>
       </nav>
     </div>
 
@@ -31,41 +31,45 @@
   <main class="main">
     <section class="topbar">
       <div class="search-wrap">
-        <input id="search" type="search" placeholder="Начните вводить название или промокод..." autocomplete="off" />
+        <input id="search" type="search" placeholder="Начните вводить название" autocomplete="off" />
       </div>
 
       <div id="categories" class="categories" aria-label="Категории">
-        <!-- buttons from JSON -->
+        <!-- категории генерируются -->
       </div>
     </section>
 
     <section class="catalog">
       <div id="cards" class="cards" aria-live="polite">
-        <!-- cards injected here -->
+        <!-- карточки -->
       </div>
     </section>
 
-    <!-- Wheel block is separate and does NOT share horizontal space with cards -->
+    <!-- Колесо снизу — отдельный блок -->
     <section class="wheel-section" aria-label="Колесо удачи">
       <div class="wheel-wrap">
-        <!-- top arrow -->
-        <div class="wheel-pointer" aria-hidden="true">▼</div>
+        <div class="wheel-pointer" aria-hidden="true">▲</div>
 
-        <div class="wheel-viewport">
+        <div class="wheel-viewport" id="wheel-viewport">
           <canvas id="wheel" width="520" height="520" aria-hidden="true"></canvas>
-          <!-- mask that visually hides the bottom part as if another block covers it -->
+
+          <!-- маска, визуально закрывающая нижнюю часть (чтобы выглядело, будто блок сверху ее перекрывает) -->
           <div class="wheel-mask" aria-hidden="true"></div>
+
           <div class="wheel-center">
-            <button id="spin-btn" class="btn big">Крутануть</button>
+            <button id="spin-btn" class="btn big">Колесо фортуны!</button>
             <div id="spin-result" class="spin-result" aria-live="polite" role="status"></div>
           </div>
         </div>
 
-        <div class="wheel-controls">
+        <div class="wheel-controls" style="display: none;">
           <label class="mute"><input id="mute" type="checkbox" /> Звук</label>
           <span id="spin-count">Попыток: 0</span>
         </div>
       </div>
+
+      <!-- конфетти холст внутри блока колеса -->
+      <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
     </section>
   </main>
 
@@ -83,14 +87,11 @@
       <button class="modal-close" id="bybit-close" title="Закрыть">&times;</button>
       <h2>Инструкция BYBIT</h2>
       <div class="modal-body">
-        <p>💸 Пример инструкции BYBIT (демо).</p>
-        <p>🎁 Промо-код: <strong id="bybit-code">WAAARLM</strong></p>
-        <p>🔗 Ссылка: <a id="bybit-link" href="#" target="_blank" rel="noopener noreferrer">пример</a></p>
+        <p>💸 Пример: регистрация и промо-код (демо).</p>
+        <p>Код: <strong id="bybit-code">WAAARLM</strong></p>
+        <p>Ссылка: <a id="bybit-link" href="#" target="_blank" rel="noopener noreferrer">пример</a></p>
       </div>
     </div>
   </div>
-
-  <!-- confetti canvas (overlay) -->
-  <canvas id="confetti-canvas" style="position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999;"></canvas>
 </body>
 </html>
