@@ -1,124 +1,133 @@
-// === Настройки ===
-const wordDisplay = document.getElementById("wordDisplay");
-const spinButton = document.getElementById("spinButton");
-const confettiCanvas = document.getElementById("confettiCanvas");
-const spinSound = document.getElementById("spinSound");
-const winSound = document.getElementById("winSound");
+const display = document.getElementById("wordDisplay");
+const button = document.getElementById("spinButton");
+const confCanvas = document.getElementById("confettiCanvas");
+const confCtx = confCanvas.getContext("2d");
 
 let goodWords = [];
-let failWords = [];
-let isSpinning = false;
+let badWords = [];
 
-// === Загрузка данных ===
-async function loadWords() {
-  const [goodRes, failRes] = await Promise.all([
-    fetch("/data/goodWords.json"),
-    fetch("/data/failWords.json"),
-  ]);
-  goodWords = await goodRes.json();
-  failWords = await failRes.json();
-}
-
-// === Конфетти ===
-const ctx = confettiCanvas.getContext("2d");
 let confetti = [];
-function initConfetti() {
-  confettiCanvas.width = window.innerWidth;
-  confettiCanvas.height = window.innerHeight;
-}
-window.addEventListener("resize", initConfetti);
-initConfetti();
+let spinning = false;
 
-function createConfetti() {
-  for (let i = 0; i < 150; i++) {
-    confetti.push({
-      x: Math.random() * confettiCanvas.width,
-      y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-      r: Math.random() * 6 + 2,
-      d: Math.random() * 0.5,
-    });
+// Загрузка JSON файлов
+async function loadWords() {
+  try {
+    const [goodRes, badRes] = await Promise.all([
+      fetch("/goodWords.json"),
+      fetch("/badWords.json")
+    ]);
+    goodWords = await goodRes.json();
+    badWords = await badRes.json();
+  } catch (e) {
+    console.error("Ошибка загрузки списков:", e);
   }
 }
-function drawConfetti() {
-  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-  ctx.fillStyle = "rgba(255,255,255,0.8)";
-  confetti.forEach((c) => {
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2, true);
-    ctx.fill();
-  });
-  moveConfetti();
+
+// Звук
+const spinSound = new Audio("/sounds/spin.mp3");
+const winSound = new Audio("/sounds/win.mp3");
+
+// Настройка холста конфетти
+function resizeCanvas() {
+  confCanvas.width = window.innerWidth;
+  confCanvas.height = window.innerHeight;
 }
-function moveConfetti() {
-  confetti.forEach((c) => {
-    c.y += c.d * 5;
-    if (c.y > confettiCanvas.height) {
-      c.y = -10;
-      c.x = Math.random() * confettiCanvas.width;
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Функция создания конфетти
+function createConfetti() {
+  confetti = Array.from({ length: 100 }, () => ({
+    x: Math.random() * confCanvas.width,
+    y: Math.random() * -confCanvas.height,
+    r: Math.random() * 6 + 2,
+    d: Math.random() * 0.5 + 0.5,
+    color: `hsl(${Math.random() * 360}, 100%, 60%)`
+  }));
+}
+
+// Анимация конфетти
+function drawConfetti() {
+  confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+  confetti.forEach(p => {
+    confCtx.beginPath();
+    confCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    confCtx.fillStyle = p.color;
+    confCtx.fill();
+  });
+  updateConfetti();
+  requestAnimationFrame(drawConfetti);
+}
+
+function updateConfetti() {
+  confetti.forEach(p => {
+    p.y += p.d * 6;
+    if (p.y > confCanvas.height) {
+      p.y = Math.random() * -50;
+      p.x = Math.random() * confCanvas.width;
     }
   });
 }
-function animateConfetti() {
-  drawConfetti();
-  requestAnimationFrame(animateConfetti);
-}
-animateConfetti();
 
-// === Перелистывание слов ===
-function shuffleArray(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
-
-function getRandomWord(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-async function spinWords() {
-  if (isSpinning) return;
-  isSpinning = true;
-  spinButton.disabled = true;
+// Рандомайзер
+async function spin() {
+  if (spinning) return;
+  spinning = true;
 
   spinSound.currentTime = 0;
   spinSound.play();
 
-  // Смешиваем оба списка
-  const mixedList = shuffleArray([...goodWords, ...failWords]);
+  let time = 0;
+  const duration = 5000; // 5 секунд
+  let lastTime = performance.now();
+  let resultWord = badWords[Math.floor(Math.random() * badWords.length)];
+  let frame = () => {
+    const now = performance.now();
+    const delta = now - lastTime;
+    lastTime = now;
+    time += delta;
 
-  let duration = 5000; // общее время перелистывания
-  let step = 0;
-  let totalSteps = 50;
-  let lastTimestamp = 0;
+    // скорость убывает к концу
+    const progress = time / duration;
+    const speed = 50 + 2500 * (1 - progress) ** 2;
 
-  function animate(timestamp) {
-    if (!lastTimestamp) lastTimestamp = timestamp;
-    const progress = timestamp - lastTimestamp;
-
-    if (progress > duration / totalSteps) {
-      const word = mixedList[step % mixedList.length];
-      wordDisplay.textContent = word;
-      lastTimestamp = timestamp;
-      step++;
+    if (Math.random() < delta / speed) {
+      display.textContent =
+        goodWords[Math.floor(Math.random() * goodWords.length)];
     }
 
-    // замедление к концу
-    if (step < totalSteps) {
-      requestAnimationFrame(animate);
+    if (time < duration) {
+      requestAnimationFrame(frame);
     } else {
-      // эффект завершения
+      // Завершение
+      display.textContent = resultWord;
+      display.classList.add("highlight");
+      setTimeout(() => display.classList.remove("highlight"), 1500);
       winSound.currentTime = 0;
       winSound.play();
       createConfetti();
-      setTimeout(() => {
-        confetti = [];
-      }, 3000);
-      isSpinning = false;
-      spinButton.disabled = false;
+      setTimeout(() => (spinning = false), 1000);
     }
-  }
-
-  requestAnimationFrame(animate);
+  };
+  requestAnimationFrame(frame);
 }
 
-// === События ===
-window.addEventListener("load", loadWords);
-spinButton.addEventListener("click", spinWords);
+// Подсветка при выигрыше
+const style = document.createElement("style");
+style.innerHTML = `
+  .highlight {
+    color: #ff4081 !important;
+    text-shadow: 0 0 20px #ff4081, 0 0 40px #ff4081;
+    transform: scale(1.1);
+    transition: all 0.4s ease;
+  }
+`;
+document.head.appendChild(style);
+
+// Запуск
+window.addEventListener("DOMContentLoaded", async () => {
+  await loadWords();
+  createConfetti();
+  drawConfetti();
+  button.addEventListener("click", spin);
+});
