@@ -1,119 +1,529 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Жека Твинк</title>
-  <meta name="description" content="список" />
-  <link rel="stylesheet" href="/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Жека Твинк</title>
+<meta name="description" content="список" />
+<style>
+/* ================== Стили (cozy деревня) ================== */
+:root{
+  --body-bg1:#efe7d2;
+  --body-bg2:#f8f3ea;
+  --wood:#8a6b4a;
+  --accent:#7aa89a;
+  --muted:#5f4f3f;
+  --card-bg:#fffaf2;
+  --coupon:#f3e6cc;
+  --shadow: rgba(15,12,10,0.18);
+  --maxw:1200px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family: Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:var(--muted)}
+body{
+  background: linear-gradient(180deg,var(--body-bg1),var(--body-bg2));
+  display:flex;
+  justify-content:center;
+  overflow-x:hidden;
+}
+
+/* фон-канвас-лес (контейнер под деревья) */
+#forest-bg{
+  position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0;
+  display:flex;justify-content:space-between;align-items:stretch;
+}
+#forest-bg canvas{ width:320px; height:100%; }
+
+/* главный контейнер */
+.container{
+  width:100%;
+  max-width:var(--maxw);
+  margin:20px;
+  padding:22px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.85));
+  border-radius:14px;
+  box-shadow: 0 10px 30px var(--shadow);
+  position:relative;
+  z-index:2;
+}
+
+/* header */
+header{text-align:center;margin-bottom:20px}
+header h1{font-size:34px;color:var(--wood);margin-bottom:6px}
+header .subtitle{color:var(--muted);font-size:13px}
+
+/* search + categories */
+#search-section{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px}
+#searchInput{
+  width:92%;max-width:540px;padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);font-size:15px;
+  background: #fffefb;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+}
+#categoryButtons{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.cat-btn{
+  background: #f6e9d0; border:1px solid rgba(0,0,0,0.04);
+  padding:8px 12px;border-radius:999px;color:var(--muted);cursor:pointer;font-weight:600;
+}
+.cat-btn.active{ background: var(--accent); color:white; box-shadow:0 6px 18px rgba(0,0,0,0.08) }
+
+/* grid карточек */
+.casino-grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:18px;
+  margin-bottom:26px;
+}
+
+/* карточка */
+.casino-card{
+  background:var(--card-bg);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  border:1px solid rgba(0,0,0,0.03);
+  box-shadow: 0 6px 18px var(--shadow);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.casino-card:hover{ transform: translateY(-6px); box-shadow:0 14px 30px rgba(0,0,0,0.12) }
+
+.casino-card img{width:100%;height:150px;object-fit:cover;background:#efe6d6}
+.casino-info{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.casino-info h3{margin:0;color:var(--wood);font-size:18px}
+.casino-info p{margin:0;color:#6a5b4a;font-size:13px;min-height:36px}
+
+/* купон */
+.promo{ background:var(--coupon); border-radius:10px; padding:8px 12px; text-align:center; cursor:pointer; border:1px dashed rgba(0,0,0,0.05); font-weight:700; font-family:monospace; color:var(--wood) }
+.promo.copied{ background: #dfe8e3; color:#163a34; border-style:solid }
+
+/* кнопка в игру */
+.play-button{
+  margin:12px; padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:800;
+  background: linear-gradient(90deg,var(--accent), #6fa89a); color:#022a26;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.12);
+}
+
+/* scam special */
+.casino-card.scam .play-button{ background: linear-gradient(90deg,#c85b5b,#e07a7a); color:white }
+
+/* SCAM fall animation */
+@keyframes scamFall {
+  0% { transform: rotate(0) translateY(0); opacity:1 }
+  60% { transform: rotate(10deg) translateY(80px); opacity:0.9 }
+  100% { transform: rotate(60deg) translateY(900px); opacity:0 }
+}
+.casino-card.fall{ animation: scamFall 1.1s ease forwards }
+
+/* Рандомайзер (слот) */
+#randomizer-section{ text-align:center; margin:34px 0 }
+.slot-container{ display:inline-block; background:#fffaf6; border:1px solid rgba(0,0,0,0.04); padding:18px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.08) }
+.slot-display{ width:420px; max-width:86vw; height:72px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:#fff7eb; border:1px solid rgba(0,0,0,0.03); overflow:hidden; margin-bottom:12px; position:relative }
+.reel-list{ display:block; transform:translateY(0); will-change:transform }
+.reel-item{ height:72px; line-height:72px; text-align:center; font-weight:800; color:var(--wood); border-bottom:1px dashed rgba(0,0,0,0.03); font-size:18px }
+.slot-button{ padding:10px 18px; border-radius:10px; border:none; background:var(--accent); color:white; font-weight:800; cursor:pointer }
+
+/* overlay result — fixed so doesn't move layout */
+#spin-result{ position:fixed; left:50%; top:14%; transform:translateX(-50%) scale(.98); padding:10px 14px; border-radius:10px; background:rgba(10,8,6,0.75); color:#fff; opacity:0; z-index:9999; pointer-events:none; transition:opacity .2s, transform .2s; font-weight:800 }
+
+/* confetti canvas inside slot area absolute positioned */
+#confettiCanvas{ position:absolute; left:50%; transform:translateX(-50%); top:0; width:420px; max-width:86vw; height:120px; pointer-events:none; }
+
+/* modal bybit */
+#bybit-instruction .modal{ max-width:520px; margin:18px auto; padding:16px; border-radius:12px; background:#fffaf2; border:1px solid rgba(0,0,0,0.04) }
+.close-btn{ position:absolute; right:8px; top:6px; background:transparent; border:none; font-size:20px; cursor:pointer }
+
+/* donate */
+.donate-button{ display:inline-block; padding:10px 14px; border-radius:10px; background:#b07a46;color:#fff;text-decoration:none;font-weight:700 }
+
+/* footer */
+footer{ margin-top:36px; padding:26px 0; text-align:center; color:var(--muted); border-top:1px solid rgba(0,0,0,0.04) }
+
+/* responsive */
+@media (max-width:1100px){ .casino-grid{ grid-template-columns: repeat(3,1fr) } .slot-display{ height:64px } .reel-item{ height:64px; line-height:64px } }
+@media (max-width:800px){ .casino-grid{ grid-template-columns: repeat(2,1fr) } }
+@media (max-width:520px){ .casino-grid{ grid-template-columns: 1fr } #searchInput{ width:92% } #confettiCanvas{ width:90vw } }
+</style>
 </head>
 <body>
-  <header class="header">
-    <h1>Жека Твинк</h1>
-    <p>Только проверенные, абсолютно ненастоящие “казино” 😄</p>
-  </header>
+  <!-- background trees (left/right canvases) -->
+  <div id="forest-bg" aria-hidden="true">
+    <canvas id="leftTree"></canvas>
+    <canvas id="rightTree"></canvas>
+  </div>
 
-  <nav class="filters">
-    <input type="text" id="searchInput" placeholder="Найди нужный казик..." autofocus />
-    <div class="categories">
-      <button class="filter-btn active" data-category="all">Все</button>
-      <button class="filter-btn" data-category="top">Топ</button>
-      <button class="filter-btn" data-category="новые">Новые</button>
-      <button class="filter-btn" data-category="шутка">Шутка</button>
-    </div>
-  </nav>
+  <div class="container" role="main">
+    <header>
+      <h1>Жека Твинк</h1>
+      <div class="subtitle">Только сегодня день не ограниченных попыток! Попытай удачу!</div>
+    </header>
 
-  <main>
-    <section class="cards" id="casinoList">
-      <!-- Шуточные “казики” -->
-      <div class="card" data-category="топ шутка">
-        <img src="https://placehold.co/400x220?text=Vavada" alt="Vavada">
-        <h3>Вавада</h3>
-        <p>Легендарное место, где легенды тоже проигрывают.</p>
-        <div class="promo">Промокод: <span class="promo-code">VAWA777</span></div>
-        <button class="play-btn">В игру</button>
-      </div>
-
-      <div class="card" data-category="топ новые">
-        <img src="https://placehold.co/400x220?text=Stake" alt="Stake">
-        <h3>Стейк</h3>
-        <p>Сочный сайт, прожаренный на 100% неудачи.</p>
-        <div class="promo">Промокод: <span class="promo-code">MEAT100</span></div>
-        <button class="play-btn">В игру</button>
-      </div>
-
-      <div class="card" data-category="шутка">
-        <img src="https://placehold.co/400x220?text=Vodka" alt="Vodka">
-        <h3>Водка</h3>
-        <p>Пей, играй, проигрывай — в правильном порядке!</p>
-        <div class="promo">Промокод: <span class="promo-code">SHOT2025</span></div>
-        <button class="play-btn">В игру</button>
-      </div>
-
-      <div class="card" data-category="топ">
-        <img src="https://placehold.co/400x220?text=Boooi" alt="Boooi">
-        <h3>Буй</h3>
-        <p>Корабль фортуны, который уже утонул. Но весело!</p>
-        <div class="promo">Промокод: <span class="promo-code">BOOM1</span></div>
-        <button class="play-btn">В игру</button>
-      </div>
-
-      <div class="card" data-category="новые">
-        <img src="https://placehold.co/400x220?text=PlayFortuna" alt="PlayFortuna">
-        <h3>ПлейФортуна</h3>
-        <p>Фортуна играет, но не с тобой 😅</p>
-        <div class="promo">Промокод: <span class="promo-code">FORT999</span></div>
-        <button class="play-btn">В игру</button>
-      </div>
-
-      <div class="card" data-category="топ">
-        <img src="https://placehold.co/400x220?text=JoyCasino" alt="JoyCasino">
-        <h3>ДжойКазино</h3>
-        <p>Радость заканчивается, когда заходишь на сайт.</p>
-        <div class="promo">Промокод: <span class="promo-code">JOY0</span></div>
-        <button class="play-btn">В игру</button>
-      </div>
-
-      <div class="card scam" data-category="шутка">
-        <img src="https://placehold.co/400x220?text=SCAM" alt="SCAM">
-        <h3>СКАМ</h3>
-        <p>Никакого скама! Только проверенные мемы!</p>
-        <button class="play-btn scam-btn">В игру</button>
-      </div>
+    <section id="search-section">
+      <input id="searchInput" type="text" placeholder="Поиск по названию или промокоду..." />
+      <div id="categoryButtons" aria-hidden="false"></div>
     </section>
 
-    <!-- Рандомайзер удачи -->
-    <section class="randomizer">
+    <section id="casino-list" class="casino-grid" aria-live="polite"></section>
+
+    <section id="randomizer-section">
       <h2>Попытай удачу!</h2>
-      <div class="randomizer-container">
-        <div id="wordDisplay">Приготовься...</div>
-        <button id="spinButton">Крутить</button>
-        <canvas id="confettiCanvas"></canvas>
+      <div class="slot-container">
+        <div id="slotWrap" style="position:relative;display:inline-block">
+          <div id="slotDisplay" class="slot-display" aria-live="polite"></div>
+          <canvas id="confettiCanvas"></canvas>
+        </div>
+        <div style="margin-top:12px">
+          <button id="startRandomizer" class="slot-button">Крутить!</button>
+        </div>
       </div>
     </section>
 
-    <!-- Инструкция BYBIT -->
-    <section class="bybit">
-      <button id="bybitToggle">Инструкция BYBIT</button>
-      <div id="bybitContent" class="hidden">
-        <p>💸 Зарегистрируйте аккаунт на Bybit и получайте эксклюзивные награды!</p>
-        <p>🎁 Дополнительно получите бонус до 6135 USDT по ссылке ➡️ <a href="#">https://www.bybit.com/invite?ref=WAAARLM</a></p>
-        <p>❤️ Регистрируй крипто-кошелёк с кодом ➡️ <b>WAAARLM</b></p>
+    <section id="bybit-instruction" class="hidden">
+      <div class="modal">
+        <button id="closeBybit" class="close-btn" title="Закрыть">×</button>
+        <h3>Инструкция BYBIT</h3>
+        <p>💸 Зарегистрируйте аккаунт на Bybit и получите бонус — демо.</p>
+        <p>Код: <b>WAAARLM</b></p>
       </div>
     </section>
 
-    <!-- Донаты -->
-    <section class="donate">
-      <a href="https://donatepay.ru/don/435213" target="_blank" class="donate-btn">💖 Поддержать проект</a>
+    <section id="donate" style="text-align:center;margin-top:22px">
+      <a class="donate-button" href="https://donatepay.ru/don/435213" target="_blank" rel="noopener">Поддержать проект</a>
     </section>
-  </main>
 
-  <footer class="footer">
-    <p>Не играйте, одумайтесь, остановитесь!  
-      Но если я вас не убедил, то хотя бы направлю в проверенные места.</p>
-  </footer>
+    <footer>
+      <p class="footer-text">Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы направлю в проверенные места.</p>
+    </footer>
+  </div>
 
-  <script src="/script.js"></script>
+  <div id="spin-result" aria-hidden="true">Поздравляю!</div>
+
+<script>
+/* ================ Встроенные данные (демо) ================ */
+/* Шуточные карточки (пародийные) */
+const CASINOS = [
+  {name:"Вавада", desc:"Легендарное место, где легенды тоже проигрывают.", promo:"VAVADA777", categories:["Топ","Шутка"], img:"https://placehold.co/600x300?text=Vavada", url:"#"},
+  {name:"Стейк", desc:"Сочный сайт, прожаренный на 100% неудачи.", promo:"MEAT100", categories:["Топ"], img:"https://placehold.co/600x300?text=Stake", url:"#"},
+  {name:"Водка", desc:"Пей, играй, проигрывай — в правильном порядке!", promo:"SHOT2025", categories:["Шутка"], img:"https://placehold.co/600x300?text=Vodka", url:"#"},
+  {name:"Буй", desc:"Корабль фортуны, который уже утонул. Но весело!", promo:"BOOM1", categories:["Топ"], img:"https://placehold.co/600x300?text=Boooi", url:"#"},
+  {name:"ПлейФортуна", desc:"Фортуна играет, но не с тобой.", promo:"FORT999", categories:["Новые"], img:"https://placehold.co/600x300?text=PlayFortuna", url:"#"},
+  {name:"ДжойКазино", desc:"Радость заканчивается, когда заходишь на сайт.", promo:"JOY0", categories:["Топ"], img:"https://placehold.co/600x300?text=JoyCasino", url:"#"},
+  {name:"СКАМ", desc:"Никакого скама! Только проверенные мемы!", promo:"", categories:["Фейк"], img:"https://placehold.co/600x300/ff6961/ffffff?text=SCAM", url:"#", fake:true}
+];
+
+/* Списки слов — можно заменить на большие списки позже */
+const GOOD_WORDS = [
+  "Пентхаус на Манхэттене","Яхта мечты","Сундук сокровищ","Миллион долларов",
+  "Ferrari в подарок","Дом у океана","Карта без лимита","Вилла в Дубае",
+  "Шеф-повар на год","Безлимитный кофе","Личный водитель","Пакет биткоинов",
+  "Гора золота","Бесконечный отпуск","Собственный остров","Приватный самолёт",
+  "Дом на колесах","Tesla Plaid","Миллион подписчиков","Премиум бонус",
+  "Дворец в горах","Бриллиантовый браслет","Шкаф кроссовок","Премия миллионера",
+  "Карта удачи","Космический тур","Золотая кнопка YouTube","Бесконечный Wi-Fi",
+  "Подарочная карта","Райский отдых","Золотой чемоданчик","Шкаф полон денег",
+  "Ужин с Илон Маском","Собственный бренд","Банковский сейф","Магнит удачи",
+  "Личный банкир","Огромная пачка денег","Карта телепортации","Дворец под ключ"
+];
+
+const BAD_WORDS = [
+  "Ничего","Ноль","Ошибка","Жаль","Промах","Мимо","Упс","Не судьба",
+  "Печаль","Сори","Плак-плак","Удача сбежала","Попробуй завтра","Ты серьёзен?",
+  "404: приз не найден","Пшик","Фиаско","Нет-нет","Лот не выигран","Мимо цели",
+  "Не фартануло","Промахнулся","Случай промолчал","Печальный исход","Не в этот раз",
+  "Пусто как в кармане","Ушла удача","Ха-ха, мимо","Ошибка фортуны","Оп-па"
+];
+
+/* ================ DOM refs ================ */
+const casinoList = document.getElementById('casino-list');
+const searchInput = document.getElementById('searchInput');
+const categoryButtons = document.getElementById('categoryButtons');
+
+const slotDisplay = document.getElementById('slotDisplay');
+const startBtn = document.getElementById('startRandomizer');
+const slotWrap = document.getElementById('slotWrap');
+const confettiCanvas = document.getElementById('confettiCanvas');
+const overlay = document.getElementById('spin-result');
+
+/* ================== Render casinos ================== */
+function buildCategories() {
+  const cats = new Set();
+  CASINOS.forEach(c => (c.categories||[]).forEach(cat => cats.add(cat)));
+  categoryButtons.innerHTML = '';
+  const allBtn = document.createElement('button'); allBtn.className='cat-btn active'; allBtn.textContent='Все'; allBtn.dataset.cat='all'; categoryButtons.appendChild(allBtn);
+  [...cats].forEach(cat=>{
+    const b = document.createElement('button'); b.className='cat-btn'; b.textContent=cat; b.dataset.cat=cat; categoryButtons.appendChild(b);
+  });
+  categoryButtons.addEventListener('click', e=>{
+    const btn = e.target.closest('button'); if(!btn) return;
+    categoryButtons.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  });
+}
+
+function createCard(c){
+  const card = document.createElement('div'); card.className='casino-card';
+  if(c.fake) card.classList.add('scam');
+  card.dataset.categories = (c.categories||[]).join(' ');
+  card.innerHTML = `
+    <img src="${c.img}" alt="${c.name}">
+    <div class="casino-info">
+      <h3>${c.name}</h3>
+      <p>${c.desc}</p>
+      ${c.promo ? `<div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:34px"></div>`}
+      <button class="play-button">${c.name === 'СКАМ' || c.fake ? 'в игру' : 'в игру'}</button>
+    </div>
+  `;
+  // event handlers
+  const promoEl = card.querySelector('.promo');
+  if(promoEl){
+    promoEl.addEventListener('click', async (ev)=>{
+      const code = promoEl.dataset.code||promoEl.textContent;
+      try { await navigator.clipboard.writeText(code); promoEl.classList.add('copied'); promoEl.textContent='Скопировано'; setTimeout(()=>{ promoEl.classList.remove('copied'); promoEl.textContent = code; }, 1200); } catch(e){}
+      ev.stopPropagation();
+    });
+  }
+  const btn = card.querySelector('.play-button');
+  if(c.fake || c.name.toLowerCase().includes('скам')){
+    btn.addEventListener('click', ()=>{
+      card.classList.add('fall');
+      setTimeout(()=> card.remove(), 1100);
+    });
+  } else {
+    btn.addEventListener('click', async ()=>{
+      if (c.promo) { try { await navigator.clipboard.writeText(c.promo);} catch(e){} }
+      if (c.url && c.url !== '#') window.open(c.url,'_blank','noopener');
+    });
+  }
+  return card;
+}
+
+function renderCasinos(list = CASINOS){
+  casinoList.innerHTML = '';
+  list.forEach(c=> casinoList.appendChild(createCard(c)));
+}
+
+/* ================ Filters & Search ================ */
+function variantsOf(q){
+  q = (q||'').toLowerCase();
+  if(!q) return [''];
+  const map = {'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p','х':'[','ъ':']','ф':'a','ы':'s','в':'d','а':'f','п':'g','р':'h','о':'j','л':'k','д':'l','ж':';','э':"'",'я':'z','ч':'x','с':'c','м':'v','и':'b','т':'n','ь':'m','б':',','ю':'.'};
+  const enToRu = Object.fromEntries(Object.entries(map).map(([k,v])=>[v,k]));
+  const ruEn = q.split('').map(c=> map[c]||c).join('');
+  const enRu = q.split('').map(c=> enToRu[c]||c).join('');
+  return [q, ruEn, enRu];
+}
+
+function applyFilters(){
+  const activeBtn = categoryButtons.querySelector('.active');
+  const cat = activeBtn ? activeBtn.dataset.cat : 'all';
+  const q = searchInput.value.trim().toLowerCase();
+  const vars = variantsOf(q);
+  Array.from(casinoList.children).forEach(card=>{
+    const title = (card.querySelector('h3')||{}).textContent.toLowerCase();
+    const desc = (card.querySelector('p')||{}).textContent.toLowerCase();
+    const promo = (card.querySelector('.promo')||{}).dataset.code || '';
+    const hay = (title + ' ' + desc + ' ' + promo).toLowerCase();
+    const matchQ = !q || vars.some(v => v && hay.includes(v));
+    const cats = (card.dataset.categories||'').toLowerCase().split(/\s+/);
+    const matchCat = (cat==='all') || cats.includes(cat.toLowerCase());
+    card.style.display = (matchQ && matchCat) ? 'block' : 'none';
+  });
+}
+
+searchInput.addEventListener('input', applyFilters);
+
+/* ================ Randomizer (slot scroll) ================ */
+const SPIN_SOUND_SRC = ""; // вставь свой mp3 URL, если хочешь звук
+const WIN_SOUND_SRC = "";
+
+let isSpinning = false;
+const confCanvas = confettiCanvas;
+let confCtx = null;
+if(confCanvas){ confCanvas.width = confCanvas.offsetWidth || 420; confCanvas.height = 120; confCtx = confCanvas.getContext('2d'); }
+
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr; }
+
+startBtn.addEventListener('click', async ()=>{
+  if(isSpinning) return;
+  isSpinning = true;
+  // prepare audio (optional)
+  const spinAudio = SPIN_SOUND_SRC ? new Audio(SPIN_SOUND_SRC) : null;
+  const winAudio = WIN_SOUND_SRC ? new Audio(WIN_SOUND_SRC) : null;
+  if(spinAudio){ spinAudio.loop = true; spinAudio.volume = 0.75; try{ await spinAudio.play(); }catch(e){} }
+
+  // prepare sequence: several loops of goods + tail goods + final bad
+  const loops = 6;
+  const seq = [];
+  for(let i=0;i<loops;i++){ seq.push(...shuffle([...GOOD_WORDS])); }
+  // tail goods
+  seq.push(...shuffle([...GOOD_WORDS]).slice(0,6));
+  // final bad
+  const finalBad = BAD_WORDS[Math.floor(Math.random()*BAD_WORDS.length)];
+  seq.push(finalBad);
+
+  // build DOM list
+  slotDisplay.innerHTML = '';
+  const list = document.createElement('div'); list.className='reel-list';
+  seq.forEach(word=>{
+    const it = document.createElement('div'); it.className='reel-item'; it.textContent = word; list.appendChild(it);
+  });
+  slotDisplay.appendChild(list);
+
+  // measure heights
+  await new Promise(r=>requestAnimationFrame(r));
+  const item = list.querySelector('.reel-item');
+  const itemH = item ? item.getBoundingClientRect().height : 72;
+  const viewportH = slotDisplay.getBoundingClientRect().height;
+  const targetIndex = seq.length - 1;
+  const finalTranslate = -(itemH * targetIndex) + ((viewportH - itemH) / 2);
+
+  // start from 0
+  list.style.transition = 'none';
+  list.style.transform = 'translateY(0px)';
+  list.getBoundingClientRect();
+
+  // animate (duration 5000ms, ease-out)
+  const duration = 5000;
+  list.style.transition = `transform ${duration}ms cubic-bezier(.16,.9,.07,1)`;
+  list.style.transform = `translateY(${finalTranslate}px)`;
+
+  // on end:
+  list.addEventListener('transitionend', async function handler(){
+    list.removeEventListener('transitionend', handler);
+    // stop spin audio
+    try{ if(spinAudio){ spinAudio.pause(); spinAudio.currentTime=0; } }catch(e){}
+    // play win audio
+    try{ if(winAudio){ winAudio.currentTime=0; await winAudio.play(); } }catch(e){}
+    // highlight final item
+    const last = list.querySelector('.reel-item:last-child');
+    if(last){ last.style.color = '#a36d2d'; last.style.transform='scale(1.03)'; last.style.transition='transform .25s ease'; }
+    // show overlay
+    showOverlay("Поздравляю!");
+    // confetti burst
+    launchConfetti(confCanvas, confCtx);
+    setTimeout(()=>{ hideOverlay(); isSpinning=false; }, 1600);
+  }, {once:true});
+});
+
+/* overlay control */
+function showOverlay(text){
+  overlay.textContent = text || '';
+  overlay.style.opacity='1'; overlay.style.transform='translateX(-50%) scale(1.02)';
+  overlay.setAttribute('aria-hidden','false');
+}
+function hideOverlay(){ overlay.style.opacity='0'; overlay.style.transform='translateX(-50%) scale(.98)'; overlay.setAttribute('aria-hidden','true'); }
+
+/* ============== Confetti (burst) ============== */
+function launchConfetti(canvas, ctx){
+  if(!canvas || !ctx) return;
+  const parts = [];
+  const N = 80;
+  for(let i=0;i<N;i++){
+    parts.push({
+      x: canvas.width/2 + (Math.random()-0.5)*240,
+      y: 20 + Math.random()*40,
+      vx: (Math.random()-0.5)*6,
+      vy: Math.random()*6 + 2,
+      r: Math.random()*5+2,
+      color: `hsl(${Math.floor(Math.random()*360)},70%,55%)`
+    });
+  }
+  const start = performance.now();
+  function frame(now){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of parts){
+      p.x += p.vx; p.y += p.vy; p.vy += 0.12;
+      ctx.beginPath(); ctx.fillStyle = p.color; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+    if(now - start < 2400) requestAnimationFrame(frame);
+    else setTimeout(()=> ctx.clearRect(0,0,canvas.width,canvas.height), 80);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============== Trees (grow 10s then stop) ============== */
+function setupTree(canvasId, mirrored=false){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  // set pixel size
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(canvas.clientWidth * dpr);
+  canvas.height = Math.floor(canvas.clientHeight * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  // generate branches tree structure
+  const branches = [];
+  const baseX = mirrored ? canvas.clientWidth - 40 : 40;
+  const baseY = canvas.clientHeight - 20;
+  function grow(x,y,len,angle,depth){
+    if(depth>6) return;
+    const ex = x + len * Math.cos(angle);
+    const ey = y - len * Math.sin(angle);
+    branches.push({x,y,ex,ey,depth});
+    const next = len * (0.68 + Math.random()*0.12);
+    const spread = 0.28 + Math.random()*0.18;
+    grow(ex,ey,next,angle+spread,depth+1);
+    grow(ex,ey,next,angle-spread,depth+1);
+  }
+  grow(baseX,baseY,50,Math.PI/2,0);
+
+  // animate drawing progressively for 10s
+  const total = branches.length;
+  const start = performance.now();
+  const DURATION = 10000; // 10s
+  function draw(now){
+    ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
+    const t = Math.min((now - start) / DURATION,1);
+    // easing: quick at start, slow at end (easeOutQuad)
+    const prog = 1 - (1 - t) * (1 - t);
+    ctx.lineCap = 'round';
+    for(let i=0;i<branches.length;i++){
+      const b = branches[i];
+      const frac = i/total;
+      if(frac <= prog){
+        ctx.strokeStyle = '#6b4e2e';
+        ctx.lineWidth = Math.max(6 - b.depth, 1);
+        ctx.beginPath(); ctx.moveTo(b.x,b.y); ctx.lineTo(b.ex,b.ey); ctx.stroke();
+        // add occasional coin on deep branches near end
+        if(b.depth>4 && Math.random() < 0.06){
+          ctx.beginPath(); ctx.fillStyle = '#f6c75a'; ctx.arc(b.ex,b.ey,4,0,Math.PI*2); ctx.fill();
+        }
+      }
+    }
+    if(t<1) requestAnimationFrame(draw);
+    // else stop (tree stays)
+  }
+  requestAnimationFrame(draw);
+}
+
+/* ============== BYBIT toggle ============== */
+document.getElementById('closeBybit').addEventListener('click', ()=> {
+  document.getElementById('bybit-instruction').classList.add('hidden');
+});
+
+/* ============== Init ============== */
+function init(){
+  // render categories and cards
+  buildCategories();
+  renderCasinos();
+  // initial focus on search
+  setTimeout(()=> { try{ document.getElementById('searchInput').focus(); }catch(e){} },120);
+  // tree animations
+  setupTree('leftTree', false);
+  setupTree('rightTree', true);
+  // attach category/search hooks done in buildCategories/applyFilters
+}
+init();
+
+/* small window resize handler to resize confetti canvas */
+window.addEventListener('resize', ()=>{
+  if(confettiCanvas){
+    confettiCanvas.width = confettiCanvas.offsetWidth;
+    confettiCanvas.height = 120;
+  }
+});
+/* ============== END ============== */
+</script>
 </body>
 </html>
