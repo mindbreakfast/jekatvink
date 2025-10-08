@@ -1,38 +1,15 @@
 [
-  {
-    "id": "demo1",
-    "name": "Казик 1",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'><rect width='100%' height='100%' fill='%2318202b'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>DemoPlace A</text></svg>",
-    "bonus": "Промо: 100% + фриспины",
-    "promo_code": "JekaVip",
-    "url": "#",
-    "categories": ["Топ", "Рекомендуем"]
-  },
-  {
-    "id": "demo2",
-    "name": "Казик 2",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'><rect width='100%' height='100%' fill='%230b2430'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%239ef'>DemoPlay B</text></svg>",
-    "bonus": "Крипто-бонус 50%",
-    "promo_code": "JekaVip",
-    "url": "#",
-    "categories": ["Крипто"]
-  },
-  {
-    "id": "demo3",
-    "name": "Казик 3",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'><rect width='100%' height='100%' fill='%2312181a'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23f6d37a'>DemoVIP C</text></svg>",
-    "bonus": "Фриспины + подарок",
-    "promo_code": "JekaVip",
-    "url": "#",
-    "categories": ["Рекомендуем"]
-  },
-  {
-    "id": "scam",
-    "name": "Скам",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'><rect width='100%' height='100%' fill='%23ff0000'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%23fff'>SCAM</text></svg>",
-    "bonus": "Никакого скама! Только проверенные места!",
-    "url": "#",
-    "fake": true,
-    "categories": []
-  }
+  { "id": "k1", "name": "Казик 1", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%230b1620'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 1</text></svg>", "bonus": "Описание Казик 1 — бонусная оферта.", "promo_code": "KZ1", "url": "#", "categories": ["Топ"] },
+  { "id": "k2", "name": "Казик 2", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%23101528'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 2</text></svg>", "bonus": "Описание Казик 2.", "promo_code": "KZ2", "url": "#", "categories": ["Рекомендуем"] },
+  { "id": "k3", "name": "Казик 3", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%23141b2f'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 3</text></svg>", "bonus": "Описание Казик 3.", "promo_code": "KZ3", "url": "#", "categories": ["Крипто"] },
+  { "id": "k4", "name": "Казик 4", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%2312172a'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 4</text></svg>", "bonus": "Описание Казик 4.", "promo_code": "KZ4", "url": "#", "categories": ["Топ"] },
+  { "id": "k5", "name": "Казик 5", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%230e1620'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 5</text></svg>", "bonus": "Описание Казик 5.", "promo_code": "KZ5", "url": "#", "categories": ["Рекомендуем"] },
+  { "id": "k6", "name": "Казик 6", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%23121a2a'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 6</text></svg>", "bonus": "Описание Казик 6.", "promo_code": "KZ6", "url": "#", "categories": ["Крипто"] },
+  { "id": "k7", "name": "Казик 7", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%230b1020'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 7</text></svg>", "bonus": "Описание Казик 7.", "promo_code": "KZ7", "url": "#", "categories": ["Топ"] },
+  { "id": "k8", "name": "Казик 8", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%23101a28'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 8</text></svg>", "bonus": "Описание Казик 8.", "promo_code": "KZ8", "url": "#", "categories": ["Рекомендуем"] },
+  { "id": "k9", "name": "Казик 9", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%2312162b'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 9</text></svg>", "bonus": "Описание Казик 9.", "promo_code": "KZ9", "url": "#", "categories": ["Крипто"] },
+  { "id": "k10", "name": "Казик 10", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%230d1622'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 10</text></svg>", "bonus": "Описание Казик 10.", "promo_code": "KZ10", "url": "#", "categories": ["Рекомендуем"] },
+  { "id": "k11", "name": "Казик 11", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%230b1520'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 11</text></svg>", "bonus": "Описание Казик 11.", "promo_code": "KZ11", "url": "#", "categories": ["Топ"] },
+  { "id": "k12", "name": "Казик 12", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%23101828'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%23fff'>Казик 12</text></svg>", "bonus": "Описание Казик 12.", "promo_code": "KZ12", "url": "#", "categories": ["Рекомендуем"] },
+  { "id": "scam", "name": "Скам", "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400'><rect width='100%' height='100%' fill='%23ff3333'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='60' fill='%23fff'>SCAM</text></svg>", "bonus": "Никакого скама! Только проверенные места!", "url": "#", "fake": true, "categories": [] }
 ]
