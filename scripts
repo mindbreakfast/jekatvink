@@ -1,0 +1,78 @@
+/* script.js — финальная рабочая версия (шаблон)
+ - чистый HTML/CSS/JS
+ - загрузка data/casinos.json
+ - категории, фильтры, поиск с коррекцией раскладки
+ - промокоды: клик копирует; при переходе автокопирование
+ - SCAM: отваливается через 3 сек при наведении
+ - колесо удачи + confetti (cdn) + WebAudio простые звуки
+ - Donate buttons (открывают внешний URL; замените ниже)
+*/
+
+"use strict";
+
+const CASINOS_JSON_PATH = 'data/casinos.json';
+const DONATE_URL = 'https://donatepay.ru/don/435213'; // можно заменить
+let casinosData = [];
+
+/* DOM refs */
+const refs = {
+  search: null,
+  categories: null,
+  cards: null,
+  bybitBtn: null,
+  bybitModal: null,
+  bybitClose: null,
+  spinBtn: null,
+  spinResult: null,
+  wheelCanvas: null,
+  mute: null,
+  spinCount: null,
+  donateHeader: null,
+  donateBtn: null,
+  confettiCanvas: null
+};
+
+document.addEventListener('DOMContentLoaded', init);
+
+async function init(){
+  bind();
+  await loadData();
+  buildCategories();
+  renderCards(casinosData);
+  setupSearch();
+  setupAutoFocus();
+  setupBybit();
+  setupDonate();
+  setupWheel();
+}
+
+/* Bind DOM elements */
+function bind(){
+  refs.search = document.getElementById('search');
+  refs.categories = document.getElementById('categories');
+  refs.cards = document.getElementById('cards');
+  refs.bybitBtn = document.getElementById('bybit-btn');
+  refs.bybitModal = document.getElementById('bybit-modal');
+  refs.bybitClose = document.getElementById('bybit-close');
+  refs.spinBtn = document.getElementById('spin-btn');
+  refs.spinResult = document.getElementById('spin-result');
+  refs.wheelCanvas = document.getElementById('wheel');
+  refs.mute = document.getElementById('mute');
+  refs.spinCount = document.getElementById('spin-count');
+  refs.donateHeader = document.getElementById('donate-header');
+  refs.donateBtn = document.getElementById('donate-btn');
+  refs.confettiCanvas = document.getElementById('confetti-canvas');
+}
+
+/* Load JSON (fallback to embedded data if fetch fails) */
+async function loadData(){
+  try {
+    const r = await fetch(CASINOS_JSON_PATH, {cache:'no-store'});
+    if(!r.ok) throw new Error('no json');
+    casinosData = await r.json();
+  } catch (e) {
+    console.warn('Не удалось загрузить JSON — используем встроенные данные', e);
+    // встроенный запас (повторяет data/casinos.json)
+    casinosData = [
+      {"id":"demo1","name":"DemoPlace A","image":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'><rect width='100%' height='100%' fill='%2318202b'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>DemoPlace A</text></svg>","bonus":"Промо: 100% + фриспины","promo_code":"DEMOA100","url":"#","categories":["Топ","Рекомендуем"]},
+      {"id":"demo2","name":"DemoPlay B","
