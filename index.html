@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JekaVipBonus - проверенно</title>
-  <meta name="description" content="Список казов" />
+  <title>JekaVipBonus — Проверено</title>
+  <meta name="description" content="Жека" />
   <link rel="stylesheet" href="/styles.css">
-  <!-- confetti CDN -->
+  <!-- canvas-confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
   <script src="/script.js" defer></script>
 </head>
@@ -31,53 +31,50 @@
   <main class="main">
     <section class="topbar">
       <div class="search-wrap">
-        <input id="search" type="search" placeholder="Начните вводить название" autocomplete="off" />
+        <input id="search" type="search" placeholder="Начните вводить название или промокод..." autocomplete="off" />
       </div>
 
-      <div id="categories" class="categories" aria-label="Категории">
-        <!-- категории генерируются -->
-      </div>
+      <div id="categories" class="categories" aria-label="Категории"></div>
     </section>
 
     <section class="catalog">
-      <div id="cards" class="cards" aria-live="polite">
-        <!-- карточки -->
-      </div>
+      <div id="cards" class="cards" aria-live="polite"></div>
     </section>
 
-    <!-- Колесо снизу — отдельный блок -->
+    <!-- Wheel section (separate block, bottom) -->
     <section class="wheel-section" aria-label="Колесо удачи">
-      <div class="wheel-wrap">
-        <div class="wheel-pointer" aria-hidden="true">▲</div>
-
-        <div class="wheel-viewport" id="wheel-viewport">
-          <canvas id="wheel" width="520" height="520" aria-hidden="true"></canvas>
-
-          <!-- маска, визуально закрывающая нижнюю часть (чтобы выглядело, будто блок сверху ее перекрывает) -->
-          <div class="wheel-mask" aria-hidden="true"></div>
-
-          <div class="wheel-center">
-            <button id="spin-btn" class="btn big">Колесо фортуны!</button>
-            <div id="spin-result" class="spin-result" aria-live="polite" role="status"></div>
+      <div class="wheel-wrap neon-panel">
+        <!-- static pointer above wheel -->
+        <div class="pointer-row">
+          <div class="pointer-outer">
+            <div class="pointer">▲</div>
+            <div id="pointer-label" class="pointer-label" aria-hidden="true"></div>
           </div>
         </div>
 
-        <div class="wheel-controls" style="display: none;">
+        <div class="wheel-viewport" id="wheel-viewport">
+          <canvas id="wheel" width="520" height="520" aria-hidden="true"></canvas>
+          <div class="wheel-mask" aria-hidden="true"></div>
+          <div class="wheel-center">
+            <button id="spin-btn" class="btn spin-cta">Проверь свою удачу!</button>
+            <div id="spin-result" class="spin-result" aria-live="polite" role="status"></div>
+          </div>
+          <!-- confetti canvas scoped to wheel -->
+          <canvas id="confetti-canvas" class="confetti-canvas" width="520" height="260" aria-hidden="true"></canvas>
+        </div>
+
+        <div class="wheel-controls">
           <label class="mute"><input id="mute" type="checkbox" /> Звук</label>
           <span id="spin-count">Попыток: 0</span>
         </div>
       </div>
-
-      <!-- конфетти холст внутри блока колеса -->
-      <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
     </section>
   </main>
 
-  <footer class="site-footer" role="contentinfo">
-    <div class="police-flash" aria-hidden="true"></div>
+  <footer class="site-footer">
     <div class="footer-text">
       <strong>Не играйте, одумайтесь, остановитесь!</strong>
-      <div>Но если я вас не убедил, то хотя-бы направлю в проверенные места.</div>
+      <div>Но если я вас не убедил — направлю в проверенные места.</div>
     </div>
   </footer>
 
