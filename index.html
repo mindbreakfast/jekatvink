@@ -1,63 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JekaVipBonus</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Жека Твинк</title>
+  <meta name="description" content="список" />
   <link rel="stylesheet" href="/style.css" />
-  <!-- confetti lib -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">JekaVip<span class="dot">Bonus</span></div>
-    <nav class="socials">
-      <a href="#" class="social yt" aria-label="YouTube">YT</a>
-      <a href="#" class="social kick" aria-label="Kick">K</a>
-      <a href="#" class="social tg" aria-label="Telegram">TG</a>
-      <a href="#" class="social vk" aria-label="VK">VK</a>
-    </nav>
-  </header>
+  <header>Попытай удачу!</header>
 
   <main>
-    <!-- top: search / categories could be here (if you use them) -->
-    <section class="randomizer-section">
-      <h2 class="randomizer-title">Рандомайзер</h2>
-
-      <div class="randomizer-viewport">
-        <!-- confetti canvas for this block -->
-        <canvas id="confetti" class="confetti-canvas"></canvas>
-
-        <!-- reel: words fly here -->
-        <div id="reel" class="reel" aria-live="polite"></div>
-
-        <!-- visual window showing the center slot -->
-        <div class="reel-window" aria-hidden="true"></div>
-      </div>
-
-      <div class="randomizer-controls">
-        <button id="spinButton" class="btn big">Крутить</button>
-        <span id="spinResult" class="spin-result" aria-live="polite"></span>
-      </div>
-    </section>
-
-    <!-- cards grid (JSON-driven) -->
-    <section id="cards" class="cards">
-      <!-- карточки генерируются скриптом -->
-    </section>
+    <div class="randomizer-container">
+      <div id="wordDisplay">Приготовься...</div>
+      <button id="spinButton">Крутить</button>
+      <canvas id="confettiCanvas"></canvas>
+    </div>
   </main>
 
-  <footer class="site-footer police-mock">
-    <div class="footer-inner">
-      <div class="footer-left">
-        <p class="footer-text">
-          Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы направлю в проверенные места.
-        </p>
-      </div>
-    </div>
+  <footer>
+    Не играйте, одумайтесь, остановитесь!  
+    Но если я вас не убедил, то хотя бы направлю в проверенные места.
   </footer>
 
-  <!-- main script: абсолютный путь /script.js -->
-  <script src="/script.js" defer></script>
+  <script src="/script.js"></script>
 </body>
 </html>
