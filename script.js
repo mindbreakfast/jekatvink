@@ -130,4 +130,3 @@ document.addEventListener('click', e => {
     setTimeout(() => card.remove(), 1500);
   }
 });
-
