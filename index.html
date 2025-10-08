@@ -4,108 +4,60 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>JekaVipBonus</title>
-  <meta name="description" content="Список" />
-  <link rel="stylesheet" href="/styles.css">
-  <!-- confetti CDN (используется в script.js) -->
+  <link rel="stylesheet" href="/style.css" />
+  <!-- confetti lib -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
-  <script src="/script.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <div class="left-h">
-      <div class="logo">JekaVipBonus<span class="dot">.ru</span></div>
-      <nav class="socials" aria-label="Соцсети">
-        <a class="social yt" href="#" title="YouTube" aria-label="YouTube">YT</a>
-        <a class="social kick" href="#" title="Kick" aria-label="Kick">Kick</a>
-        <a class="social tg" href="#" title="Telegram" aria-label="Telegram">TG</a>
-        <a class="social vk" href="#" title="VK" aria-label="VK">VK</a>
-      </nav>
-    </div>
-
-    <div class="right-h">
-      <button id="donate-header" class="btn donate" title="Поддержать проект">Донат</button>
-      <button id="bybit-btn" class="btn small">Инструкция BYBIT</button>
-    </div>
+    <div class="logo">JekaVip<span class="dot">Bonus</span></div>
+    <nav class="socials">
+      <a href="#" class="social yt" aria-label="YouTube">YT</a>
+      <a href="#" class="social kick" aria-label="Kick">K</a>
+      <a href="#" class="social tg" aria-label="Telegram">TG</a>
+      <a href="#" class="social vk" aria-label="VK">VK</a>
+    </nav>
   </header>
 
-  <main class="main">
-    <!-- top controls -->
-    <section class="topbar">
-      <div class="search-wrap">
-        <input id="search" type="search" placeholder="Начните вводить название или промокод..." autocomplete="off" />
+  <main>
+    <!-- top: search / categories could be here (if you use them) -->
+    <section class="randomizer-section">
+      <h2 class="randomizer-title">Рандомайзер</h2>
+
+      <div class="randomizer-viewport">
+        <!-- confetti canvas for this block -->
+        <canvas id="confetti" class="confetti-canvas"></canvas>
+
+        <!-- reel: words fly here -->
+        <div id="reel" class="reel" aria-live="polite"></div>
+
+        <!-- visual window showing the center slot -->
+        <div class="reel-window" aria-hidden="true"></div>
       </div>
 
-      <div id="categories" class="categories" aria-label="Категории">
-        <!-- категории генерируются скриптом -->
+      <div class="randomizer-controls">
+        <button id="spinButton" class="btn big">Крутить</button>
+        <span id="spinResult" class="spin-result" aria-live="polite"></span>
       </div>
     </section>
 
-    <!-- cards grid -->
-    <section class="catalog">
-      <div id="cards" class="cards" aria-live="polite">
-        <!-- карточки генерируются скриптом -->
-      </div>
-    </section>
-
-    <!-- RANDOMIZER (вместо колеса) — отдельная секция внизу -->
-    <section class="randomizer-section" aria-label="Рандомайзер">
-      <div class="randomizer-wrap">
-        <h2 class="randomizer-title">Рандомайзер — проверяем удачу</h2>
-
-        <div class="randomizer-viewport" id="randomizer-viewport">
-          <!-- Полоса-барабан: внутри JS будут перелистываться слова -->
-          <div class="reel" id="reel" aria-hidden="false">
-            <!-- элементы приза генерируются/анимируются в JS -->
-          </div>
-
-          <!-- центральная рамка — финальный слот (показывает результат) -->
-          <div class="reel-window" aria-hidden="true"></div>
-
-          <!-- конфетти холст, только для этой секции -->
-          <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
-        </div>
-
-        <div class="randomizer-controls">
-          <button id="spin-btn" class="btn big">Крутануть</button>
-          <label class="mute"><input id="mute" type="checkbox" /> Звук</label>
-          <span id="spin-result" class="spin-result" aria-live="polite"></span>
-          <span id="spin-count" class="spin-count">Попыток: 0</span>
-        </div>
-
-        <p class="randomizer-note">Быстрая мульти-миксация слов, плавное замедление — итог подсвечивается ярким неоновым ореолом.</p>
-      </div>
+    <!-- cards grid (JSON-driven) -->
+    <section id="cards" class="cards">
+      <!-- карточки генерируются скриптом -->
     </section>
   </main>
 
-  <!-- Footer (не фиксирован) -->
-  <footer class="site-footer" role="contentinfo">
+  <footer class="site-footer police-mock">
     <div class="footer-inner">
       <div class="footer-left">
-        <strong>Не играйте, одумайтесь, остановитесь!</strong>
-        <div class="footer-sub">Но если я вас не убедил — направлю в проверенные места.</div>
-      </div>
-      <div class="footer-right">
-        <div class="police-mock" aria-hidden="true"></div>
-        <nav class="footer-links">
-          <a href="#" class="link">Правила</a>
-          <a href="#" class="link">Контакты</a>
-        </nav>
+        <p class="footer-text">
+          Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы направлю в проверенные места.
+        </p>
       </div>
     </div>
   </footer>
 
-  <!-- BYBIT modal (демо) -->
-  <div id="bybit-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-panel">
-      <button class="modal-close" id="bybit-close" title="Закрыть">&times;</button>
-      <h2>Инструкция BYBIT</h2>
-      <div class="modal-body">
-        <p>💸 Пример: регистрация и промо-код (демо).</p>
-        <p>Код: <strong id="bybit-code">WAAARLM</strong></p>
-        <p>Ссылка: <a id="bybit-link" href="#" target="_blank" rel="noopener noreferrer">пример</a></p>
-      </div>
-    </div>
-  </div>
+  <!-- main script: абсолютный путь /script.js -->
+  <script src="/script.js" defer></script>
 </body>
 </html>
-
