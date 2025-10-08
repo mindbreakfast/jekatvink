@@ -6,22 +6,112 @@
   <title>Жека Твинк</title>
   <meta name="description" content="список" />
   <link rel="stylesheet" href="/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header>Попытай удачу!</header>
+  <header class="header">
+    <h1>Жека Твинк</h1>
+    <p>Только проверенные, абсолютно ненастоящие “казино” 😄</p>
+  </header>
+
+  <nav class="filters">
+    <input type="text" id="searchInput" placeholder="Найди нужный казик..." autofocus />
+    <div class="categories">
+      <button class="filter-btn active" data-category="all">Все</button>
+      <button class="filter-btn" data-category="top">Топ</button>
+      <button class="filter-btn" data-category="новые">Новые</button>
+      <button class="filter-btn" data-category="шутка">Шутка</button>
+    </div>
+  </nav>
 
   <main>
-    <div class="randomizer-container">
-      <div id="wordDisplay">Приготовься...</div>
-      <button id="spinButton">Крутить</button>
-      <canvas id="confettiCanvas"></canvas>
-    </div>
+    <section class="cards" id="casinoList">
+      <!-- Шуточные “казики” -->
+      <div class="card" data-category="топ шутка">
+        <img src="https://placehold.co/400x220?text=Vavada" alt="Vavada">
+        <h3>Вавада</h3>
+        <p>Легендарное место, где легенды тоже проигрывают.</p>
+        <div class="promo">Промокод: <span class="promo-code">VAWA777</span></div>
+        <button class="play-btn">В игру</button>
+      </div>
+
+      <div class="card" data-category="топ новые">
+        <img src="https://placehold.co/400x220?text=Stake" alt="Stake">
+        <h3>Стейк</h3>
+        <p>Сочный сайт, прожаренный на 100% неудачи.</p>
+        <div class="promo">Промокод: <span class="promo-code">MEAT100</span></div>
+        <button class="play-btn">В игру</button>
+      </div>
+
+      <div class="card" data-category="шутка">
+        <img src="https://placehold.co/400x220?text=Vodka" alt="Vodka">
+        <h3>Водка</h3>
+        <p>Пей, играй, проигрывай — в правильном порядке!</p>
+        <div class="promo">Промокод: <span class="promo-code">SHOT2025</span></div>
+        <button class="play-btn">В игру</button>
+      </div>
+
+      <div class="card" data-category="топ">
+        <img src="https://placehold.co/400x220?text=Boooi" alt="Boooi">
+        <h3>Буй</h3>
+        <p>Корабль фортуны, который уже утонул. Но весело!</p>
+        <div class="promo">Промокод: <span class="promo-code">BOOM1</span></div>
+        <button class="play-btn">В игру</button>
+      </div>
+
+      <div class="card" data-category="новые">
+        <img src="https://placehold.co/400x220?text=PlayFortuna" alt="PlayFortuna">
+        <h3>ПлейФортуна</h3>
+        <p>Фортуна играет, но не с тобой 😅</p>
+        <div class="promo">Промокод: <span class="promo-code">FORT999</span></div>
+        <button class="play-btn">В игру</button>
+      </div>
+
+      <div class="card" data-category="топ">
+        <img src="https://placehold.co/400x220?text=JoyCasino" alt="JoyCasino">
+        <h3>ДжойКазино</h3>
+        <p>Радость заканчивается, когда заходишь на сайт.</p>
+        <div class="promo">Промокод: <span class="promo-code">JOY0</span></div>
+        <button class="play-btn">В игру</button>
+      </div>
+
+      <div class="card scam" data-category="шутка">
+        <img src="https://placehold.co/400x220?text=SCAM" alt="SCAM">
+        <h3>СКАМ</h3>
+        <p>Никакого скама! Только проверенные мемы!</p>
+        <button class="play-btn scam-btn">В игру</button>
+      </div>
+    </section>
+
+    <!-- Рандомайзер удачи -->
+    <section class="randomizer">
+      <h2>Попытай удачу!</h2>
+      <div class="randomizer-container">
+        <div id="wordDisplay">Приготовься...</div>
+        <button id="spinButton">Крутить</button>
+        <canvas id="confettiCanvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Инструкция BYBIT -->
+    <section class="bybit">
+      <button id="bybitToggle">Инструкция BYBIT</button>
+      <div id="bybitContent" class="hidden">
+        <p>💸 Зарегистрируйте аккаунт на Bybit и получайте эксклюзивные награды!</p>
+        <p>🎁 Дополнительно получите бонус до 6135 USDT по ссылке ➡️ <a href="#">https://www.bybit.com/invite?ref=WAAARLM</a></p>
+        <p>❤️ Регистрируй крипто-кошелёк с кодом ➡️ <b>WAAARLM</b></p>
+      </div>
+    </section>
+
+    <!-- Донаты -->
+    <section class="donate">
+      <a href="https://donatepay.ru/don/435213" target="_blank" class="donate-btn">💖 Поддержать проект</a>
+    </section>
   </main>
 
-  <footer>
-    Не играйте, одумайтесь, остановитесь!  
-    Но если я вас не убедил, то хотя бы направлю в проверенные места.
+  <footer class="footer">
+    <p>Не играйте, одумайтесь, остановитесь!  
+      Но если я вас не убедил, то хотя бы направлю в проверенные места.</p>
   </footer>
 
   <script src="/script.js"></script>
