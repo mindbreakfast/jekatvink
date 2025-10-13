@@ -290,3 +290,78 @@ footer{
   #searchInput{padding:10px 15px;font-size:14px;}
   .cat-btn{padding:8px 15px;font-size:13px;}
 }
+
+
+
+
+
+/* Эффект шлейфа за курсором */
+.cursor-trail {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.cursor-coin {
+    position: absolute;
+    color: var(--wood);
+    font-size: 16px;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+    animation: coinFloat 1.5s ease-out forwards;
+    user-select: none;
+}
+
+@keyframes coinFloat {
+    0% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -100%) scale(1.2) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -150%) scale(0.8) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Альтернативный вариант - золотые частицы */
+.cursor-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--wood);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFade 1s ease-out forwards;
+    box-shadow: 0 0 10px var(--wood);
+}
+
+@keyframes particleFade {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -80px) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Эффект золотого свечения вокруг курсора */
+.cursor-glow {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(circle, rgba(212,175,55,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s ease;
+    mix-blend-mode: screen;
+}
