@@ -365,3 +365,24 @@ footer{
     transition: all 0.1s ease;
     mix-blend-mode: screen;
 }
+
+
+/* Простое золотое свечение курсора */
+.cursor-glow {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(
+        circle,
+        rgba(212,175,55,0.4) 0%,
+        rgba(212,175,55,0.2) 30%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+    mix-blend-mode: screen;
+    filter: blur(1px);
+}
