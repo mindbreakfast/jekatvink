@@ -3,50 +3,66 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Жека Твинк</title>
-    <meta name="description" content="Список проверенных казино" />
+    <title>Жека Твинк - Проверенные казино</title>
+    <meta name="description" content="Список проверенных казино с бонусами и промокодами" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Фон с золотыми цепями -->
     <div class="chain-bg" aria-hidden="true"></div>
 
+    <!-- Денежный дождь -->
+    <div class="money-rain" aria-hidden="true"></div>
+
     <div class="container" role="main">
         <header>
             <h1>Жека Твинк</h1>
-            <div class="subtitle">Только сегодня день не ограниченных попыток! Попытай удачу!</div>
+            <div class="subtitle">Только сегодня день не ограниченных попыток! Попытай удачу и получи щедрые бонусы!</div>
         </header>
 
         <section id="search-section">
-            <input id="searchInput" type="text" placeholder="Поиск по названию или промокоду..." />
-            <div id="categoryButtons" aria-hidden="false"></div>
+            <input id="searchInput" type="text" placeholder="🔍 Поиск по названию или промокоду..." />
+            <div id="categoryButtons" aria-label="Категории казино"></div>
         </section>
 
         <section id="casino-list" class="casino-grid" aria-live="polite"></section>
 
         <!-- Кнопка открытия модалки -->
-        <div style="text-align: center; margin: 20px 0;">
-            <button class="open-modal-btn" id="openBybit">Инструкция BYBIT</button>
+        <div style="text-align: center; margin: 40px 0;">
+            <button class="open-modal-btn" id="openBybit">🎰 Инструкция BYBIT</button>
         </div>
 
-        <section id="donate" style="text-align:center;margin-top:22px">
-            <a class="donate-button" href="https://donatepay.ru/don/435213" target="_blank" rel="noopener">Поддержать проект</a>
+        <section id="donate" style="text-align:center;margin-top:30px">
+            <a class="donate-button" href="https://donatepay.ru/don/435213" target="_blank" rel="noopener noreferrer">
+                💝 Поддержать проект
+            </a>
         </section>
 
         <footer>
-            <p class="footer-text">Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы направлю в проверенные места.</p>
+            <p class="footer-text">
+                ⚠️ Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы направлю в проверенные места. 
+                Азартные игры могут вызывать зависимость. Играйте ответственно.
+            </p>
         </footer>
     </div>
 
     <!-- Модальное окно Bybit -->
-    <section id="bybit-instruction" class="hidden">
+    <section id="bybit-instruction" class="hidden" aria-hidden="true">
         <div class="modal">
-            <button id="closeBybit" class="close-btn" title="Закрыть">×</button>
-            <h3 style="color: var(--wood); margin-bottom: 20px;">Инструкция BYBIT</h3>
-            <p style="color: var(--muted); margin: 15px 0;">💸 Зарегистрируйте аккаунт на Bybit и получите бонус — демо.</p>
-            <p style="color: var(--muted); margin: 15px 0;">Код: <b style="color: var(--wood);">WAAARLM</b></p>
-            <div style="margin-top: 25px; padding: 12px; background: #333; border-radius: 8px; border-left: 4px solid var(--wood);">
-                <p style="color: var(--muted); margin: 0; font-size: 14px;">⚠️ Помните: торговля криптовалютами связана с высокими рисками</p>
+            <button id="closeBybit" class="close-btn" title="Закрыть" aria-label="Закрыть окно">×</button>
+            <h3 style="color: var(--wood); margin-bottom: 25px; text-align: center;">🎯 Инструкция BYBIT</h3>
+            <p style="color: var(--muted); margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                💸 Зарегистрируйте аккаунт на Bybit и получите эксклюзивный бонус — демо-счет для тренировки!
+            </p>
+            <div style="background: #333; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center;">
+                <p style="color: var(--muted); margin: 0 0 10px 0; font-size: 14px;">Промокод:</p>
+                <p style="color: var(--wood); font-size: 24px; font-weight: 800; margin: 0; letter-spacing: 2px;">WAAARLM</p>
+            </div>
+            <div style="margin-top: 25px; padding: 15px; background: #333; border-radius: 10px; border-left: 4px solid var(--wood);">
+                <p style="color: var(--muted); margin: 0; font-size: 14px; line-height: 1.5;">
+                    ⚠️ Важно: торговля криптовалютами связана с высокими рисками. 
+                    Начинайте с небольших сумм и обучайтесь перед серьезными инвестициями.
+                </p>
             </div>
         </div>
     </section>
