@@ -410,6 +410,7 @@ function init() {
     buildCategories();
     renderCasinos();
     createMoneyRain();
+    createCursorTrail(); // Добавляем эту строку
     
     // Фокус на поиск
     setTimeout(() => { 
@@ -418,7 +419,6 @@ function init() {
         } catch(e) {} 
     }, 100);
 }
-
 // Запуск при загрузке DOM
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
