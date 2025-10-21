@@ -13,7 +13,7 @@ const CASINOS = [
         "desc": "Сочный сайт, прожаренный на 100% неудачи.", 
         "promo": "MEAT100", 
         "categories": ["Топ"], 
-        "img": "https://арчизнал.рф/img/stake.jpg", 
+        "img": "https://арчизнал.рф/img/stake.png", 
         "url": "https://example.com/stake" // Замените на реальную реф ссылку
     },
     {
@@ -45,7 +45,7 @@ const CASINOS = [
         "desc": "Радость заканчивается, когда заходишь на сайт.", 
         "promo": "JOY0", 
         "categories": ["Топ"], 
-        "img": "https://арчизнал.рф/img/joycasino.jpg", 
+        "img": "https://арчизнал.рф/img/joy.jpg", 
         "url": "https://example.com/joycasino" // Замените на реальную реф ссылку
     },
     {
