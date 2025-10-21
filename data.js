@@ -6,7 +6,7 @@ const CASINOS = [
         "promo": "VAVADA777", 
         "categories": ["Топ"], 
         "img": "https://арчизнал.рф/img/vavada.jpg", 
-        "url": "#"
+        "url": "https://example.com/vavada" // Замените на реальную реф ссылку
     },
     {
         "name": "Стейк", 
@@ -14,7 +14,7 @@ const CASINOS = [
         "promo": "MEAT100", 
         "categories": ["Топ"], 
         "img": "https://арчизнал.рф/img/stake.jpg", 
-        "url": "#"
+        "url": "https://example.com/stake" // Замените на реальную реф ссылку
     },
     {
         "name": "Водка", 
@@ -22,7 +22,7 @@ const CASINOS = [
         "promo": "SHOT2025", 
         "categories": ["Новые"], 
         "img": "https://арчизнал.рф/img/vodka.jpg", 
-        "url": "#"
+        "url": "https://example.com/vodka" // Замените на реальную реф ссылку
     },
     {
         "name": "Буй", 
@@ -30,7 +30,7 @@ const CASINOS = [
         "promo": "BOOM1", 
         "categories": ["Топ"], 
         "img": "https://арчизнал.рф/img/booi.jpg", 
-        "url": "#"
+        "url": "https://example.com/booi" // Замените на реальную реф ссылку
     },
     {
         "name": "ПлейФортуна", 
@@ -38,7 +38,7 @@ const CASINOS = [
         "promo": "FORT999", 
         "categories": ["Новые"], 
         "img": "https://арчизнал.рф/img/playfortuna.jpg", 
-        "url": "#"
+        "url": "https://example.com/playfortuna" // Замените на реальную реф ссылку
     },
     {
         "name": "ДжойКазино", 
@@ -46,7 +46,7 @@ const CASINOS = [
         "promo": "JOY0", 
         "categories": ["Топ"], 
         "img": "https://арчизнал.рф/img/joycasino.jpg", 
-        "url": "#"
+        "url": "https://example.com/joycasino" // Замените на реальную реф ссылку
     },
     {
         "name": "СКАМ", 
