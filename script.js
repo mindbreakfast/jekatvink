@@ -94,6 +94,7 @@ function createCard(c) {
         });
     } else {
         btn.addEventListener('click', async () => {
+            // Сначала копируем промокод если есть
             if (c.promo) { 
                 try { 
                     await navigator.clipboard.writeText(c.promo);
@@ -106,7 +107,9 @@ function createCard(c) {
                     document.body.removeChild(textArea);
                 } 
             }
-            if (c.url && c.url !== '#') {
+            
+            // Затем переходим по ссылке
+            if (c.url && c.url !== '#' && !c.url.includes('example.com')) {
                 window.open(c.url, '_blank', 'noopener,noreferrer');
             }
         });
@@ -183,131 +186,10 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// ================ Эффект шлейфа за курсором ================
-function createCursorTrail() {
-    const trail = document.createElement('div');
-    trail.className = 'cursor-trail';
-    document.body.appendChild(trail);
-
-    const glow = document.createElement('div');
-    glow.className = 'cursor-glow';
-    document.body.appendChild(glow);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let trailTimeout;
-
-    const coinSymbols = ['🪙', '💰', '💎', '⭐', '✦', '♠', '♥', '♦', '♣'];
-    
-    function updateGlow(x, y) {
-        glow.style.left = x + 'px';
-        glow.style.top = y + 'px';
-    }
-
-    function createTrailElement(x, y) {
-        // Случайный выбор между монетой и частицей
-        if (Math.random() > 0.3) {
-            // Создаем монету
-            const coin = document.createElement('div');
-            coin.className = 'cursor-coin';
-            coin.textContent = coinSymbols[Math.floor(Math.random() * coinSymbols.length)];
-            coin.style.left = x + 'px';
-            coin.style.top = y + 'px';
-            coin.style.fontSize = (Math.random() * 8 + 14) + 'px';
-            
-            trail.appendChild(coin);
-            
-            setTimeout(() => {
-                if (coin.parentNode === trail) {
-                    trail.removeChild(coin);
-                }
-            }, 1500);
-        } else {
-            // Создаем частицу
-            const particle = document.createElement('div');
-            particle.className = 'cursor-particle';
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            particle.style.background = `hsl(${40 + Math.random() * 10}, 70%, 55%)`;
-            particle.style.width = (Math.random() * 4 + 4) + 'px';
-            particle.style.height = particle.style.width;
-            
-            trail.appendChild(particle);
-            
-            setTimeout(() => {
-                if (particle.parentNode === trail) {
-                    trail.removeChild(particle);
-                }
-            }, 1000);
-        }
-    }
-
-    function handleMouseMove(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        
-        updateGlow(mouseX, mouseY);
-        trail.style.opacity = '1';
-        
-        clearTimeout(trailTimeout);
-        trailTimeout = setTimeout(() => {
-            trail.style.opacity = '0';
-        }, 100);
-    }
-
-    function handleMouseLeave() {
-        trail.style.opacity = '0';
-        glow.style.opacity = '0';
-    }
-
-    function handleMouseEnter() {
-        trail.style.opacity = '1';
-        glow.style.opacity = '1';
-    }
-
-    // Создаем элементы шлейфа с интервалом
-    let trailInterval = setInterval(() => {
-        if (trail.style.opacity === '1') {
-            createTrailElement(mouseX, mouseY);
-        }
-    }, 50);
-
-    // Обработчики событий
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    document.addEventListener('mouseenter', handleMouseEnter);
-
-    // Активация при клике - больше частиц
-    document.addEventListener('click', (e) => {
-        for (let i = 0; i < 8; i++) {
-            setTimeout(() => {
-                createTrailElement(
-                    e.clientX + (Math.random() - 0.5) * 30,
-                    e.clientY + (Math.random() - 0.5) * 30
-                );
-            }, i * 50);
-        }
-    });
-
-    // Остановка анимации когда страница не видна
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            clearInterval(trailInterval);
-        } else {
-            trailInterval = setInterval(() => {
-                if (trail.style.opacity === '1') {
-                    createTrailElement(mouseX, mouseY);
-                }
-            }, 50);
-        }
-    });
-}
-
 // ================ Init ================
 function init() {
     buildCategories();
     renderCasinos();
-    createCursorTrail();
     
     // Фокус на поиск
     setTimeout(() => { 
