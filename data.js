@@ -45,7 +45,7 @@ const CASINOS = [
         "desc": "Радость заканчивается, когда заходишь на сайт.", 
         "promo": "JOY0", 
         "categories": ["Топ"], 
-        "img": "https://jekatvink.vercel.app/img/joy.jpg", 
+        "img": "https://jekatvink.vercel.app/img/joycasino.jpg", 
         "url": "https://example.com/joycasino" // Замените на реальную реф ссылку
     },
     {
