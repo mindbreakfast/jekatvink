@@ -49,8 +49,8 @@ const CASINOS = [
         "url": "https://example.com/joycasino" // Замените на реальную реф ссылку
     },
     {
-        "name": "СКАМ", 
-        "desc": "Никакого скама! Только проверенные мемы!", 
+        "name": "НЕ В МОЮ СМЕНУ", 
+        "desc": "Никакого скама! Только проверенные проекты!", 
         "promo": "", 
         "categories": [], 
         "img": "https://jekatvink.vercel.app/img/scam.jpg", 
