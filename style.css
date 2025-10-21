@@ -9,6 +9,7 @@
   --coupon:#3a3a3a;
   --shadow: rgba(0,0,0,0.5);
   --maxw:1200px;
+  --success-green: #4CAF50;
 }
 
 *{box-sizing:border-box}
@@ -51,6 +52,17 @@ header{text-align:center;margin-bottom:30px;padding:0 20px;}
 header h1{font-size:42px;color:var(--wood);margin-bottom:10px;text-shadow: 0 0 15px rgba(212,175,55,0.4);letter-spacing: 1px;}
 header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto;}
 
+/* Кнопки действий */
+#action-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
 /* search + categories */
 #search-section{display:flex;flex-direction:column;align-items:center;gap:15px;margin-bottom:30px;padding:0 20px;}
 #searchInput{
@@ -71,10 +83,10 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
 .cat-btn:hover{background:#3a3a3a;transform:translateY(-2px);}
 .cat-btn.active{ background: var(--wood); color:#1a1a1a; box-shadow:0 8px 20px rgba(212,175,55,0.4); transform:translateY(-2px); }
 
-/* grid карточек */
+/* grid карточек - 4 колонки */
 .casino-grid{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap:25px;
   margin-bottom:40px;
   padding:0 10px;
@@ -117,7 +129,13 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   overflow:hidden;
 }
 .promo:hover{ background: #444; border-style: solid; transform:scale(1.02);}
-.promo.copied{ background: var(--wood); color:#1a1a1a; border-style:solid; animation:pulse 0.5s ease;}
+.promo.copied{ 
+  background: var(--success-green); 
+  color:white; 
+  border-style:solid; 
+  border-color: var(--success-green);
+  animation:pulse 0.5s ease;
+}
 @keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
 
 /* кнопка в игру */
@@ -208,6 +226,7 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   font-size:16px;
   transition: all 0.3s ease;
   box-shadow:0 8px 20px rgba(0,0,0,0.3);
+  text-align: center;
 }
 .donate-button:hover{ background:linear-gradient(135deg,#ffd700,#d4af37); transform: translateY(-3px) scale(1.05); box-shadow:0 12px 25px rgba(212,175,55,0.4); }
 
@@ -220,7 +239,6 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   border-radius: 12px;
   cursor: pointer;
   font-weight: 800;
-  margin: 20px 0;
   transition: all 0.3s ease;
   font-size:16px;
   box-shadow:0 8px 20px rgba(0,0,0,0.3);
@@ -232,36 +250,94 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
 }
 
 /* Денежный дождь */
-.money-rain {
-  position: fixed;
-  top: 0;
-  left: 0;
+.money {
   width: 100%;
-  height: 100%;
+  height: 1200px;
+  position: absolute;
+  top: -200px;
+  left: 0;
   pointer-events: none;
   z-index: 1;
   overflow: hidden;
 }
 
-.money-note {
-  position: absolute;
-  color: var(--wood);
-  font-weight: 900;
-  font-size: 24px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-  user-select: none;
-  animation: moneyFall linear forwards;
+.money i {
+  display: inline-block;
+  animation: money 3s linear 2s 20;
+  position: relative;
+  background-image: url('data:image/svg+xml,%3Csvg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"%3E%3Cg%3E%3Cg%3E%3Cpath style="fill:%2374D24F;" d="M496,112H16c-8.82,0-16,7.18-16,16v256c0,8.82,7.18,16,16,16h480c8.82,0,16-7.18,16-16V128 C512,119.18,504.82,112,496,112z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23FFEFBC;" d="M472,192c-22.055,0-40-17.945-40-40c0-4.422-3.578-8-8-8H88c-4.422,0-8,3.578-8,8 c0,22.055-17.945,40-40,40c-4.422,0-8,3.578-8,8v112c0,4.422,3.578,8,8,8c22.055,0,40,17.945,40,40c0,4.422,3.578,8,8,8h336 c4.422,0,8-3.578,8-8c0-22.055,17.945-40,40-40c4.422,0,8-3.578,8-8V200C480,195.578,476.422,192,472,192z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23869B55;" d="M128,256c0,48.221,26.691,90.175,66.081,112h123.839C357.309,346.175,384,304.221,384,256 s-26.691-90.175-66.081-112H194.08C154.691,165.825,128,207.779,128,256z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23FFEFBC;" d="M256,244c-16.023,0-28-8.445-28-16c0-7.555,11.977-16,28-16s28,8.445,28,16c0,6.625,5.375,12,12,12 s12-5.375,12-12c0-19.236-16.824-34.862-40-38.932V184c0-6.625-5.375-12-12-12s-12,5.375-12,12v5.068 c-23.176,4.07-40,19.695-40,38.932c0,22.43,22.844,40,52,40c16.023,0,28,8.445,28,16c0,7.555-11.977,16-28,16s-28-8.445-28-16 c0-6.625-5.375-12-12-12s-12,5.375-12,12c0,19.236,16.824,34.862,40,38.932V328c0,6.625,5.375,12,12,12s12-5.375,12-12v-5.068 c23.176-4.07,40-19.695,40-38.932C308,261.57,285.156,244,256,244z"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%2374D24F;" cx="80" cy="256" r="24"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%2374D24F;" cx="432" cy="256" r="24"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="40" cy="152" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="472" cy="152" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="40" cy="360" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="472" cy="360" r="16"/%3E%3C/g%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3C/svg%3E%0A');
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
-@keyframes moneyFall {
+@keyframes money {
   0% {
-    transform: translateY(-100px) rotate(0deg);
-    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.6);
   }
   100% {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
+    transform: translate3d(15px, 1200px, 0px) rotate(360deg) scale(0.6);
   }
+}
+
+.money i:nth-child(3n) {
+  width: 40px;
+  height: 40px;
+  animation-duration: 4s;
+  animation-iteration-count: 30;
+  transform-origin: right -45px;
+}
+
+.money i:nth-child(3n + 1) {
+  width: 50px;
+  height: 50px;
+  animation-duration: 6s;
+  animation-iteration-count: 45;
+  transform-origin: right -30px;
+}
+
+.money i:nth-child(3n + 2) {
+  width: 65px;
+  height: 65px;
+  animation-duration: 8s;
+  animation-iteration-count: 60;
+  transform-origin: right -15px;
+}
+
+/* different delays so they don't all start at the same time */
+.money i:nth-child(7n) {
+  opacity: 0.3;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+}
+.money i:nth-child(7n + 1) {
+  opacity: 0.4;
+  animation-delay: 1s;
+  animation-timing-function: ease-out;
+}
+.money i:nth-child(7n + 2) {
+  opacity: 0.5;
+  animation-delay: 1.5s;
+  animation-timing-function: linear;
+}
+.money i:nth-child(7n + 3) {
+  opacity: 0.6;
+  animation-delay: 2s;
+  animation-timing-function: ease-in;
+}
+.money i:nth-child(7n + 4) {
+  opacity: 0.7;
+  animation-delay: 2.5s;
+  animation-timing-function: linear;
+}
+.money i:nth-child(7n + 5) {
+  opacity: 0.8;
+  animation-delay: 3s;
+  animation-timing-function: ease-out;
+}
+.money i:nth-child(7n + 6) {
+  opacity: 0.9;
+  animation-delay: 3.5s;
+  animation-timing-function: ease-in;
 }
 
 /* footer */
@@ -274,26 +350,6 @@ footer{
   background:linear-gradient(180deg,transparent,rgba(212,175,55,0.1));
 }
 .footer-text{max-width:600px;margin:0 auto;line-height:1.6;font-size:14px;}
-
-/* responsive */
-@media (max-width:768px){
-  .casino-grid{grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));gap:20px;}
-  header h1{font-size:32px;}
-  #search-section{padding:0 15px;}
-  .casino-info{padding:15px;}
-}
-
-@media (max-width:480px){
-  .container{padding:20px 15px;}
-  .casino-grid{grid-template-columns:1fr;gap:15px;}
-  header h1{font-size:28px;}
-  #searchInput{padding:10px 15px;font-size:14px;}
-  .cat-btn{padding:8px 15px;font-size:13px;}
-}
-
-
-
-
 
 /* Эффект шлейфа за курсором */
 .cursor-trail {
@@ -366,7 +422,6 @@ footer{
     mix-blend-mode: screen;
 }
 
-
 /* Простое золотое свечение курсора */
 .cursor-glow {
     position: fixed;
@@ -385,4 +440,25 @@ footer{
     transition: all 0.15s ease;
     mix-blend-mode: screen;
     filter: blur(1px);
+}
+
+/* responsive */
+@media (max-width:1024px){
+  .casino-grid{grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));}
+}
+
+@media (max-width:768px){
+  .casino-grid{grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));gap:20px;}
+  header h1{font-size:32px;}
+  #search-section{padding:0 15px;}
+  .casino-info{padding:15px;}
+  #action-buttons{flex-direction:column;gap:15px;}
+}
+
+@media (max-width:480px){
+  .container{padding:20px 15px;}
+  .casino-grid{grid-template-columns:1fr;gap:15px;}
+  header h1{font-size:28px;}
+  #searchInput{padding:10px 15px;font-size:14px;}
+  .cat-btn{padding:8px 15px;font-size:13px;}
 }
