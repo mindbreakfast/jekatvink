@@ -1,64 +1,3 @@
-// ================ Данные казино ================
-const CASINOS = [
-    {
-        "name": "Вавада", 
-        "desc": "Легендарное место, где легенды тоже проигрывают.", 
-        "promo": "VAVADA777", 
-        "categories": ["Топ", "Шутка"], 
-        "img": "https://placehold.co/600x300/333/d4af37?text=Vavada", 
-        "url": "#"
-    },
-    {
-        "name": "Стейк", 
-        "desc": "Сочный сайт, прожаренный на 100% неудачи.", 
-        "promo": "MEAT100", 
-        "categories": ["Топ"], 
-        "img": "https://placehold.co/600x300/333/d4af37?text=Stake", 
-        "url": "#"
-    },
-    {
-        "name": "Водка", 
-        "desc": "Пей, играй, проигрывай — в правильном порядке!", 
-        "promo": "SHOT2025", 
-        "categories": ["Шутка"], 
-        "img": "https://placehold.co/600x300/333/d4af37?text=Vodka", 
-        "url": "#"
-    },
-    {
-        "name": "Буй", 
-        "desc": "Корабль фортуны, который уже утонул. Но весело!", 
-        "promo": "BOOM1", 
-        "categories": ["Топ"], 
-        "img": "https://placehold.co/600x300/333/d4af37?text=Boooi", 
-        "url": "#"
-    },
-    {
-        "name": "ПлейФортуна", 
-        "desc": "Фортуна играет, но не с тобой.", 
-        "promo": "FORT999", 
-        "categories": ["Новые"], 
-        "img": "https://placehold.co/600x300/333/d4af37?text=PlayFortuna", 
-        "url": "#"
-    },
-    {
-        "name": "ДжойКазино", 
-        "desc": "Радость заканчивается, когда заходишь на сайт.", 
-        "promo": "JOY0", 
-        "categories": ["Топ"], 
-        "img": "https://placehold.co/600x300/333/d4af37?text=JoyCasino", 
-        "url": "#"
-    },
-    {
-        "name": "СКАМ", 
-        "desc": "Никакого скама! Только проверенные мемы!", 
-        "promo": "", 
-        "categories": ["Фейк"], 
-        "img": "https://placehold.co/600x300/333/ff6961?text=SCAM", 
-        "url": "#", 
-        "fake": true
-    }
-];
-
 // ================ DOM refs ================
 const casinoList = document.getElementById('casino-list');
 const searchInput = document.getElementById('searchInput');
@@ -66,44 +5,6 @@ const categoryButtons = document.getElementById('categoryButtons');
 const bybitModal = document.getElementById('bybit-instruction');
 const openBybitBtn = document.getElementById('openBybit');
 const closeBybitBtn = document.getElementById('closeBybit');
-
-// ================ Денежный дождь ================
-function createMoneyRain() {
-    const moneyRain = document.createElement('div');
-    moneyRain.className = 'money-rain';
-    document.body.appendChild(moneyRain);
-
-    const moneySymbols = ['💰', '💵', '💶', '💷', '💴', '💎', '🪙', '💸'];
-    
-    function createMoneyNote() {
-        if (document.hidden) return;
-        
-        const money = document.createElement('div');
-        money.className = 'money-note';
-        money.textContent = moneySymbols[Math.floor(Math.random() * moneySymbols.length)];
-        money.style.left = Math.random() * 100 + 'vw';
-        money.style.fontSize = (Math.random() * 20 + 20) + 'px';
-        money.style.animationDuration = (Math.random() * 3 + 5) + 's';
-        money.style.opacity = Math.random() * 0.7 + 0.3;
-        
-        moneyRain.appendChild(money);
-        
-        // Удаляем элемент после завершения анимации
-        setTimeout(() => {
-            if (money.parentNode === moneyRain) {
-                moneyRain.removeChild(money);
-            }
-        }, 8000);
-    }
-    
-    // Создаем начальные деньги
-    for (let i = 0; i < 15; i++) {
-        setTimeout(createMoneyNote, i * 300);
-    }
-    
-    // Продолжаем создавать деньги с интервалом
-    setInterval(createMoneyNote, 500);
-}
 
 // ================== Render casinos ==================
 function buildCategories() {
@@ -117,12 +18,15 @@ function buildCategories() {
     allBtn.dataset.cat = 'all'; 
     categoryButtons.appendChild(allBtn);
     
-    [...cats].forEach(cat => {
-        const b = document.createElement('button'); 
-        b.className = 'cat-btn'; 
-        b.textContent = cat; 
-        b.dataset.cat = cat; 
-        categoryButtons.appendChild(b);
+    // Только категории "Топ" и "Новые"
+    ['Топ', 'Новые'].forEach(cat => {
+        if (cats.has(cat)) {
+            const b = document.createElement('button'); 
+            b.className = 'cat-btn'; 
+            b.textContent = cat; 
+            b.dataset.cat = cat; 
+            categoryButtons.appendChild(b);
+        }
     });
     
     categoryButtons.addEventListener('click', e => {
@@ -279,7 +183,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-
 // ================ Эффект шлейфа за курсором ================
 function createCursorTrail() {
     const trail = document.createElement('div');
@@ -400,17 +303,11 @@ function createCursorTrail() {
     });
 }
 
-
-
-
-
-
 // ================ Init ================
 function init() {
     buildCategories();
     renderCasinos();
-    createMoneyRain();
-    createCursorTrail(); // Добавляем эту строку
+    createCursorTrail();
     
     // Фокус на поиск
     setTimeout(() => { 
