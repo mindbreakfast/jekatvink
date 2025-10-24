@@ -5,7 +5,7 @@ const CASINOS = [
         "desc": "+300% к депозиту. +150 спинов", 
         "promo": "JekaTvin", 
         "categories": ["Топ", "Крипто"], 
-        "img": "https://арчизнал.рф/img/vavada.jpg", 
+        "img": "https://jekatvink.vercel.app/vavada.jpg", 
         "url": "https://example.com/vavada", // Замените на реальную реф ссылку
         "hint": "Хороший выбор!"
     },
