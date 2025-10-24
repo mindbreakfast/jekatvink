@@ -50,16 +50,35 @@ function createCard(c) {
     if (c.fake) card.classList.add('scam');
     card.dataset.categories = (c.categories||[]).join(' ');
     
-    card.innerHTML = `
-        <img src="${c.img}" alt="${c.name}" loading="lazy">
-        <div class="casino-info">
-            <div class="casino-hint">${c.hint || 'Отличный выбор!'}</div>
-            <h3>${c.name}</h3>
-            <p>${c.desc}</p>
-            ${c.promo ? `<div class="promo-label">Промокод при регистрации</div><div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
-            <button class="play-button">${c.name === 'СКАМ' || c.fake ? 'в игру' : 'в игру'}</button>
-        </div>
-    `;
+    if (c.fake) {
+        card.innerHTML = `
+            <img src="${c.img}" alt="${c.name}" loading="lazy">
+            <div class="casino-title-strip">
+                <h3>${c.name}</h3>
+            </div>
+            <div class="casino-info">
+                <div class="casino-hint">${c.hint || 'Отличный выбор!'}</div>
+                <p>${c.desc}</p>
+                <button class="scam-action">
+                    <span class="scam-emoji">👍</span>
+                    <span>понял</span>
+                </button>
+            </div>
+        `;
+    } else {
+        card.innerHTML = `
+            <img src="${c.img}" alt="${c.name}" loading="lazy">
+            <div class="casino-title-strip">
+                <h3>${c.name}</h3>
+            </div>
+            <div class="casino-info">
+                <div class="casino-hint">${c.hint || 'Отличный выбор!'}</div>
+                <p>${c.desc}</p>
+                ${c.promo ? `<div class="promo-label">Промокод при регистрации</div><div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
+                <button class="play-button">в игру</button>
+            </div>
+        `;
+    }
     
     // Обработчики событий
     const promoEl = card.querySelector('.promo');
@@ -93,8 +112,8 @@ function createCard(c) {
         });
     }
     
-    const btn = card.querySelector('.play-button');
-    if (c.fake || c.name.toLowerCase().includes('скам')) {
+    const btn = card.querySelector(c.fake ? '.scam-action' : '.play-button');
+    if (c.fake) {
         btn.addEventListener('click', () => {
             card.classList.add('fall');
             setTimeout(() => card.remove(), 1200);
