@@ -62,6 +62,6 @@ const CASINOS = [
         "img": "https://jekatvink.vercel.app/img/scam.jpg", 
         "url": "#", 
         "fake": true,
-        "hint": "Не нажимай!"
+        "hint": "Нажми в игру!"
     }
 ];
