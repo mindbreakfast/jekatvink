@@ -22,7 +22,7 @@ const CASINOS = [
         "name": "Водка", 
         "desc": "+300% к депозиту. +150 спинов", 
         "promo": "JekaTvin", 
-        "categories": ["Новые"], 
+        "categories": ["Крипто", "Новые"], 
         "img": "https://арчизнал.рф/img/vodka.jpg", 
         "url": "https://example.com/vodka", // Замените на реальную реф ссылку
         "hint": "Депай смело"
