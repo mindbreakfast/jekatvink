@@ -12,13 +12,37 @@
   --success-green: #4CAF50;
 }
 
+/* Стилизация скроллбара */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--wood);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffd700;
+}
+
+/* Для Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood) #1a1a1a;
+}
+
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{
   font-family: Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   color:var(--muted);
 }
 body{
-  background: linear-gradient(180deg,var(--body-bg1),var(--body-bg2));
+  background: url('https://newphoto.club/uploads/posts/2024-10/1730022309_newphoto-club-j99h-p-bogatii-fon-v-interere-31.jpg') center/cover fixed;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
@@ -26,20 +50,49 @@ body{
   flex-direction: column;
 }
 
-/* Фон с золотыми цепями */
-.chain-bg {
+/* Лоадер */
+#loader {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  background: var(--body-bg1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+
+.loader-content {
+  text-align: center;
+}
+
+.loader-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(212, 175, 55, 0.3);
+  border-top: 5px solid var(--wood);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.loader-text {
+  color: var(--wood);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+body.loaded #loader {
+  opacity: 0;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.1;
-  background-image: 
-    radial-gradient(circle at 25% 25%, var(--wood) 2px, transparent 2px),
-    radial-gradient(circle at 75% 75%, var(--wood) 2px, transparent 2px);
-  background-size: 100px 100px;
 }
 
 /* главный контейнер */
@@ -280,6 +333,8 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   background-image: url('data:image/svg+xml,%3Csvg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"%3E%3Cg%3E%3Cg%3E%3Cpath style="fill:%2374D24F;" d="M496,112H16c-8.82,0-16,7.18-16,16v256c0,8.82,7.18,16,16,16h480c8.82,0,16-7.18,16-16V128 C512,119.18,504.82,112,496,112z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23FFEFBC;" d="M472,192c-22.055,0-40-17.945-40-40c0-4.422-3.578-8-8-8H88c-4.422,0-8,3.578-8,8 c0,22.055-17.945,40-40,40c-4.422,0-8,3.578-8,8v112c0,4.422,3.578,8,8,8c22.055,0,40,17.945,40,40c0,4.422,3.578,8,8,8h336 c4.422,0,8-3.578,8-8c0-22.055,17.945-40,40-40c4.422,0,8-3.578,8-8V200C480,195.578,476.422,192,472,192z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23869B55;" d="M128,256c0,48.221,26.691,90.175,66.081,112h123.839C357.309,346.175,384,304.221,384,256 s-26.691-90.175-66.081-112H194.08C154.691,165.825,128,207.779,128,256z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23FFEFBC;" d="M256,244c-16.023,0-28-8.445-28-16c0-7.555,11.977-16,28-16s28,8.445,28,16c0,6.625,5.375,12,12,12 s12-5.375,12-12c0-19.236-16.824-34.862-40-38.932V184c0-6.625-5.375-12-12-12s-12,5.375-12,12v5.068 c-23.176,4.07-40,19.695-40,38.932c0,22.43,22.844,40,52,40c16.023,0,28,8.445,28,16c0,7.555-11.977,16-28,16s-28-8.445-28-16 c0-6.625-5.375-12-12-12s-12,5.375-12,12c0,19.236,16.824,34.862,40,38.932V328c0,6.625,5.375,12,12,12s12-5.375,12-12v-5.068 c23.176-4.07,40-19.695,40-38.932C308,261.57,285.156,244,256,244z"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%2374D24F;" cx="80" cy="256" r="24"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%2374D24F;" cx="432" cy="256" r="24"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="40" cy="152" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="472" cy="152" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="40" cy="360" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="472" cy="360" r="16"/%3E%3C/g%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3C/svg%3E%0A');
   background-size: contain;
   background-repeat: no-repeat;
+  opacity: 0;
+  animation: fadeInMoney 3s ease 3s forwards, money 3s linear 2s 20;
 }
 
 @keyframes money {
@@ -288,6 +343,15 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   }
   100% {
     transform: translate3d(15px, 1200px, 0px) rotate(360deg) scale(0.6);
+  }
+}
+
+@keyframes fadeInMoney {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
@@ -317,37 +381,37 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
 
 /* different delays so they don't all start at the same time */
 .money i:nth-child(7n) {
-  opacity: 0.3;
+  opacity: 0;
   animation-delay: 0s;
   animation-timing-function: ease-in;
 }
 .money i:nth-child(7n + 1) {
-  opacity: 0.4;
+  opacity: 0;
   animation-delay: 1s;
   animation-timing-function: ease-out;
 }
 .money i:nth-child(7n + 2) {
-  opacity: 0.5;
+  opacity: 0;
   animation-delay: 1.5s;
   animation-timing-function: linear;
 }
 .money i:nth-child(7n + 3) {
-  opacity: 0.6;
+  opacity: 0;
   animation-delay: 2s;
   animation-timing-function: ease-in;
 }
 .money i:nth-child(7n + 4) {
-  opacity: 0.7;
+  opacity: 0;
   animation-delay: 2.5s;
   animation-timing-function: linear;
 }
 .money i:nth-child(7n + 5) {
-  opacity: 0.8;
+  opacity: 0;
   animation-delay: 3s;
   animation-timing-function: ease-out;
 }
 .money i:nth-child(7n + 6) {
-  opacity: 0.9;
+  opacity: 0;
   animation-delay: 3.5s;
   animation-timing-function: ease-in;
 }
@@ -359,8 +423,10 @@ footer{
   text-align:center;
   color:var(--muted);
   border-top:2px solid var(--wood);
-  background:linear-gradient(180deg,transparent,rgba(212,175,55,0.1));
+  background: #111;
   width: 100%;
+  position: relative;
+  z-index: 3;
 }
 .footer-content {
   max-width: var(--maxw);
@@ -371,6 +437,79 @@ footer{
   margin:0 auto;
   line-height:1.6;
   font-size:14px;
+}
+
+/* Форма отзыва */
+.review-section {
+  margin: 40px auto;
+  padding: 30px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  border: 2px solid var(--wood);
+  max-width: 600px;
+  box-shadow: 0 8px 25px var(--shadow);
+}
+
+.review-title {
+  color: var(--wood);
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.review-input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid var(--wood);
+  background: #333;
+  color: var(--muted);
+  font-size: 16px;
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.review-input:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(212,175,55,0.3);
+}
+
+.review-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+}
+
+/* Кнопка "Наверх" */
+#scrollToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: var(--wood);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+#scrollToTop:hover {
+  background: #ffd700;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(212,175,55,0.4);
 }
 
 /* responsive */
@@ -384,6 +523,17 @@ footer{
   #search-section{padding:0 15px;}
   .casino-info{padding:15px;}
   #action-buttons{flex-direction:column;gap:15px;}
+  #scrollToTop {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  .review-section {
+    margin: 30px 15px;
+    padding: 20px;
+  }
 }
 
 @media (max-width:480px){
@@ -392,4 +542,18 @@ footer{
   header h1{font-size:28px;}
   #searchInput{padding:10px 15px;font-size:14px;}
   .cat-btn{padding:8px 15px;font-size:13px;}
+  #scrollToTop {
+    bottom: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  .review-section {
+    margin: 20px 10px;
+    padding: 15px;
+  }
+  .review-title {
+    font-size: 20px;
+  }
 }
