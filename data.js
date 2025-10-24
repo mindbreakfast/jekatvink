@@ -6,7 +6,8 @@ const CASINOS = [
         "promo": "JekaTvin", 
         "categories": ["Топ", "Крипто"], 
         "img": "https://арчизнал.рф/img/vavada.jpg", 
-        "url": "https://example.com/vavada" // Замените на реальную реф ссылку
+        "url": "https://example.com/vavada", // Замените на реальную реф ссылку
+        "hint": "Хороший выбор!"
     },
     {
         "name": "Стейк", 
@@ -14,7 +15,8 @@ const CASINOS = [
         "promo": "JekaTvin", 
         "categories": ["Топ", "Крипто"], 
         "img": "https://jekatvink.vercel.app/img/stake.png", 
-        "url": "https://example.com/stake" // Замените на реальную реф ссылку
+        "url": "https://example.com/stake", // Замените на реальную реф ссылку
+        "hint": "Часто тут играю"
     },
     {
         "name": "Водка", 
@@ -22,7 +24,8 @@ const CASINOS = [
         "promo": "JekaTvin", 
         "categories": ["Новые"], 
         "img": "https://арчизнал.рф/img/vodka.jpg", 
-        "url": "https://example.com/vodka" // Замените на реальную реф ссылку
+        "url": "https://example.com/vodka", // Замените на реальную реф ссылку
+        "hint": "Депай смело"
     },
     {
         "name": "Буй", 
@@ -30,7 +33,8 @@ const CASINOS = [
         "promo": "JekaTvin", 
         "categories": ["Топ"], 
         "img": "https://арчизнал.рф/img/booi.jpg", 
-        "url": "https://example.com/booi" // Замените на реальную реф ссылку
+        "url": "https://example.com/booi", // Замените на реальную реф ссылку
+        "hint": "Я тут заносил"
     },
     {
         "name": "ПлейФортуна", 
@@ -38,7 +42,8 @@ const CASINOS = [
         "promo": "JekaTvin", 
         "categories": ["Новые"], 
         "img": "https://арчизнал.рф/img/playfortuna.jpg", 
-        "url": "https://example.com/playfortuna" // Замените на реальную реф ссылку
+        "url": "https://example.com/playfortuna", // Замените на реальную реф ссылку
+        "hint": "Тут ваще четко"
     },
     {
         "name": "ДжойКазино", 
@@ -46,7 +51,8 @@ const CASINOS = [
         "promo": "JekaTvin", 
         "categories": ["Топ"], 
         "img": "https://jekatvink.vercel.app/img/joycasino.jpg", 
-        "url": "https://example.com/joycasino" // Замените на реальную реф ссылку
+        "url": "https://example.com/joycasino", // Замените на реальную реф ссылку
+        "hint": "Не забудь промокод при регистрации!"
     },
     {
         "name": "СКАМ", 
@@ -55,6 +61,7 @@ const CASINOS = [
         "categories": [], 
         "img": "https://jekatvink.vercel.app/img/scam.jpg", 
         "url": "#", 
-        "fake": true
+        "fake": true,
+        "hint": "Не нажимай!"
     }
 ];
