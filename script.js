@@ -10,7 +10,7 @@ const loader = document.getElementById('loader');
 const reviewInput = document.getElementById('reviewInput');
 
 // Текст для автозамены
-const replacementText = "Жека мой любимый стример. Тут я текст доработаю, это просто тест";
+const replacementText = "Жека мой любимый стример! Он лучший из лучших! Текст я ещё доработаю, это просто тест. Хехе..";
 
 // ================== Render casinos ==================
 function buildCategories() {
@@ -53,6 +53,7 @@ function createCard(c) {
     card.innerHTML = `
         <img src="${c.img}" alt="${c.name}" loading="lazy">
         <div class="casino-info">
+            <div class="casino-hint">${c.hint || 'Отличный выбор!'}</div>
             <h3>${c.name}</h3>
             <p>${c.desc}</p>
             ${c.promo ? `<div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
