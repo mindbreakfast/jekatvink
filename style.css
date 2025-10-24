@@ -283,7 +283,7 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
 .casino-card:hover .casino-hint {
   opacity: 1;
   visibility: visible;
-  top: -60px;
+  top: -80px;
 }
 
 /* купон */
