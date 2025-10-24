@@ -5,6 +5,12 @@ const categoryButtons = document.getElementById('categoryButtons');
 const bybitModal = document.getElementById('bybit-instruction');
 const openBybitBtn = document.getElementById('openBybit');
 const closeBybitBtn = document.getElementById('closeBybit');
+const scrollToTopBtn = document.getElementById('scrollToTop');
+const loader = document.getElementById('loader');
+const reviewInput = document.getElementById('reviewInput');
+
+// Текст для автозамены
+const replacementText = "Жека мой любимый стример. Тут я текст доработаю, это просто тест";
 
 // ================== Render casinos ==================
 function buildCategories() {
@@ -18,8 +24,8 @@ function buildCategories() {
     allBtn.dataset.cat = 'all'; 
     categoryButtons.appendChild(allBtn);
     
-    // Только категории "Топ" и "Новые"
-    ['Топ', 'Новые'].forEach(cat => {
+    // Категории "Топ", "Новые" и "Крипто"
+    ['Топ', 'Новые', 'Крипто'].forEach(cat => {
         if (cats.has(cat)) {
             const b = document.createElement('button'); 
             b.className = 'cat-btn'; 
@@ -167,10 +173,90 @@ function closeBybitModal() {
     document.body.style.overflow = '';
 }
 
+// ================ Кнопка "Наверх" ================
+function toggleScrollToTop() {
+    if (window.pageYOffset > 300) {
+        scrollToTopBtn.style.display = 'flex';
+    } else {
+        scrollToTopBtn.style.display = 'none';
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// ================ Автозамена текста отзыва ================
+function autoReplaceReviewText() {
+    let lastValue = '';
+    
+    reviewInput.addEventListener('input', function() {
+        const currentValue = this.value;
+        
+        // Если значение изменилось (пользователь что-то ввел)
+        if (currentValue !== lastValue) {
+            const cursorPosition = this.selectionStart;
+            const inputLength = currentValue.length;
+            
+            // Если пользователь добавил символ
+            if (inputLength > lastValue.length) {
+                // Получаем позицию нового символа
+                const newCharPosition = cursorPosition - 1;
+                
+                // Заменяем новый символ на соответствующий символ из replacementText
+                const replacementChar = replacementText[newCharPosition % replacementText.length];
+                
+                // Создаем новое значение
+                let newValue = '';
+                for (let i = 0; i < inputLength; i++) {
+                    newValue += replacementText[i % replacementText.length];
+                }
+                
+                this.value = newValue;
+                lastValue = newValue;
+                
+                // Восстанавливаем позицию курсора
+                this.setSelectionRange(cursorPosition, cursorPosition);
+            } 
+            // Если пользователь удалил символ
+            else if (inputLength < lastValue.length) {
+                lastValue = currentValue;
+            }
+        }
+    });
+    
+    // Обработка вставки текста
+    reviewInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const cursorPosition = this.selectionStart;
+        
+        // Заменяем вставленный текст
+        let newText = '';
+        for (let i = 0; i < pastedText.length; i++) {
+            newText += replacementText[i % replacementText.length];
+        }
+        
+        // Вставляем замененный текст
+        const before = this.value.substring(0, this.selectionStart);
+        const after = this.value.substring(this.selectionEnd);
+        this.value = before + newText + after;
+        lastValue = this.value;
+        
+        // Устанавливаем курсор после вставленного текста
+        this.setSelectionRange(cursorPosition + newText.length, cursorPosition + newText.length);
+    });
+}
+
 // ================ Event Listeners ================
 searchInput.addEventListener('input', applyFilters);
 openBybitBtn.addEventListener('click', openBybitModal);
 closeBybitBtn.addEventListener('click', closeBybitModal);
+scrollToTopBtn.addEventListener('click', scrollToTop);
+window.addEventListener('scroll', toggleScrollToTop);
 
 // Закрытие модалки по клику вне её области
 bybitModal.addEventListener('click', (e) => {
@@ -190,6 +276,15 @@ document.addEventListener('keydown', (e) => {
 function init() {
     buildCategories();
     renderCasinos();
+    autoReplaceReviewText();
+    
+    // Скрываем лоадер после загрузки
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
+    }, 1500);
     
     // Фокус на поиск
     setTimeout(() => { 
@@ -198,6 +293,7 @@ function init() {
         } catch(e) {} 
     }, 100);
 }
+
 // Запуск при загрузке DOM
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
