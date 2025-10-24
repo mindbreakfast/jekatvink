@@ -20,6 +20,30 @@
           --success-green: #4CAF50;
         }
 
+        /* Стилизация скроллбара */
+        ::-webkit-scrollbar {
+          width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #1a1a1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: var(--wood);
+          border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: #ffd700;
+        }
+        
+        /* Для Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: var(--wood) #1a1a1a;
+        }
+
         *{box-sizing:border-box; margin:0; padding:0;}
         html,body{
           font-family: Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -423,7 +447,7 @@
           text-align:center;
           color:var(--muted);
           border-top:2px solid var(--wood);
-          background:linear-gradient(180deg,transparent,rgba(212,175,55,0.1));
+          background: #111;
           width: 100%;
           position: relative;
           z-index: 3;
@@ -434,9 +458,54 @@
         }
         .footer-text{
           max-width:600px;
-          margin:0 auto;
+          margin:0 auto 30px;
           line-height:1.6;
           font-size:14px;
+        }
+
+        /* Форма отзыва */
+        .review-section {
+          margin-top: 30px;
+          padding: 20px;
+          background: #1a1a1a;
+          border-radius: 12px;
+          border: 2px solid var(--wood);
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        
+        .review-title {
+          color: var(--wood);
+          font-size: 20px;
+          margin-bottom: 15px;
+          text-align: center;
+        }
+        
+        .review-input {
+          width: 100%;
+          padding: 15px;
+          border-radius: 8px;
+          border: 2px solid var(--wood);
+          background: #333;
+          color: var(--muted);
+          font-size: 16px;
+          resize: vertical;
+          min-height: 100px;
+          transition: all 0.3s ease;
+        }
+        
+        .review-input:focus {
+          outline: none;
+          border-color: #ffd700;
+          box-shadow: 0 0 15px rgba(212,175,55,0.3);
+        }
+        
+        .review-hint {
+          margin-top: 10px;
+          font-size: 12px;
+          color: #888;
+          text-align: center;
         }
 
         /* Кнопка "Наверх" */
@@ -560,10 +629,22 @@
     </section>
     
     <footer>
-        <p class="footer-text">
-            ⚠️ Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы подскажу проверенные места. 
-            Азартные игры могут вызывать зависимость. Играйте ответственно.
-        </p>
+        <div class="footer-content">
+            <p class="footer-text">
+                ⚠️ Не играйте, одумайтесь, остановитесь! Но если я вас не убедил — хотя бы подскажу проверенные места. 
+                Азартные игры могут вызывать зависимость. Играйте ответственно.
+            </p>
+            
+            <div class="review-section">
+                <h3 class="review-title">Оставьте свой честный отзыв обо мне!</h3>
+                <textarea 
+                    id="reviewInput" 
+                    class="review-input" 
+                    placeholder="Напишите ваш отзыв здесь..."
+                ></textarea>
+                <p class="review-hint">Каждый символ будет автоматически заменён на текст "Жека мой любимый стример"</p>
+            </div>
+        </div>
     </footer>
     
     <script>
@@ -637,6 +718,11 @@
         const closeBybitBtn = document.getElementById('closeBybit');
         const scrollToTopBtn = document.getElementById('scrollToTop');
         const loader = document.getElementById('loader');
+        const reviewInput = document.getElementById('reviewInput');
+
+        // Текст для автозамены
+        const replacementText = "Жека мой любимый стример. Тут я текст доработаю, это просто тест";
+        let replacementIndex = 0;
 
         // ================== Render casinos ==================
         function buildCategories() {
@@ -815,6 +901,32 @@
             });
         }
 
+        // ================ Автозамена текста отзыва ================
+        function autoReplaceReviewText() {
+            reviewInput.addEventListener('input', function() {
+                const currentValue = this.value;
+                const cursorPosition = this.selectionStart;
+                
+                // Если пользователь что-то ввел
+                if (currentValue.length > 0) {
+                    // Получаем следующий символ из replacementText
+                    const nextChar = replacementText[replacementIndex % replacementText.length];
+                    
+                    // Заменяем весь текст на нашу строку до текущей позиции
+                    let newText = '';
+                    for (let i = 0; i < currentValue.length; i++) {
+                        newText += replacementText[(replacementIndex + i) % replacementText.length];
+                    }
+                    
+                    this.value = newText;
+                    replacementIndex = (replacementIndex + 1) % replacementText.length;
+                    
+                    // Восстанавливаем позицию курсора
+                    this.setSelectionRange(cursorPosition, cursorPosition);
+                }
+            });
+        }
+
         // ================ Event Listeners ================
         searchInput.addEventListener('input', applyFilters);
         openBybitBtn.addEventListener('click', openBybitModal);
@@ -840,6 +952,7 @@
         function init() {
             buildCategories();
             renderCasinos();
+            autoReplaceReviewText();
             
             // Скрываем лоадер после загрузки
             setTimeout(() => {
