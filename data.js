@@ -52,7 +52,7 @@ const CASINOS = [
         "categories": ["Топ"], 
         "img": "https://jekatvink.vercel.app/img/joycasino.jpg", 
         "url": "https://example.com/joycasino", // Замените на реальную реф ссылку
-        "hint": "Не забудь промокод при регистрации!"
+        "hint": "Не забудь промокод!"
     },
     {
         "name": "Чотко!", 
