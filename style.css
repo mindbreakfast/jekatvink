@@ -1,3 +1,246 @@
+/* ================== Стили (темная тема с золотом) ================== */
+:root{
+  --body-bg1:#1a1a1a;
+  --body-bg2:#2d2d2d;
+  --wood:#d4af37;
+  --accent:#b8860b;
+  --muted:#c0c0c0;
+  --card-bg:#2a2a2a;
+  --coupon:#3a3a3a;
+  --shadow: rgba(0,0,0,0.5);
+  --maxw:1200px;
+  --success-green: #4CAF50;
+}
+
+/* Стилизация скроллбара */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--wood);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffd700;
+}
+
+/* Для Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood) #1a1a1a;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color:var(--muted);
+}
+body{
+  background: url('https://jekatvink.vercel.app/oboi.jpg') center/cover fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Лоадер */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--body-bg1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+
+.loader-content {
+  text-align: center;
+}
+
+.loader-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(212, 175, 55, 0.3);
+  border-top: 5px solid var(--wood);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.loader-text {
+  color: var(--wood);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+body.loaded #loader {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* главный контейнер */
+.container{
+  width:100%;
+  max-width:var(--maxw);
+  margin: 0 auto;
+  padding: 30px 20px;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+/* header */
+header{text-align:center;margin-bottom:30px;padding:0 20px;}
+header h1{font-size:42px;color:var(--wood);margin-bottom:10px;text-shadow: 0 0 15px rgba(212,175,55,0.4);letter-spacing: 1px;}
+header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto;}
+
+/* Кнопки действий */
+#action-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
+/* search + categories */
+#search-section{display:flex;flex-direction:column;align-items:center;gap:15px;margin-bottom:30px;padding:0 20px;}
+#searchInput{
+  width:100%;max-width:500px;padding:12px 20px;border-radius:12px;border:2px solid var(--wood);font-size:16px;
+  background: #333;
+  color: var(--muted);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+#searchInput:focus{outline:none;border-color:#ffd700;box-shadow:0 0 15px rgba(212,175,55,0.3);}
+#categoryButtons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.cat-btn{
+  background: #333; border:2px solid var(--wood);
+  padding:10px 18px;border-radius:25px;color:var(--muted);cursor:pointer;font-weight:600;
+  transition: all 0.3s ease;
+  font-size:14px;
+}
+.cat-btn:hover{background:#3a3a3a;transform:translateY(-2px);}
+.cat-btn.active{ background: var(--wood); color:#1a1a1a; box-shadow:0 8px 20px rgba(212,175,55,0.4); transform:translateY(-2px); }
+
+/* grid карточек - 4 колонки */
+.casino-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap:25px;
+  margin-bottom:40px;
+  padding:0 10px;
+  justify-items: center;
+}
+
+/* карточка */
+.casino-card{
+  background:var(--card-bg);
+  border-radius:16px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow: 0 8px 25px var(--shadow);
+  transition: all 0.4s ease;
+  position:relative;
+  width: 270px;
+  max-width: 100%;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+.casino-card:hover{ 
+  box-shadow:0 15px 35px rgba(212,175,55,0.25);
+}
+
+.casino-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s;
+  z-index: 1;
+}
+
+.casino-card:hover::before {
+  left: 100%;
+}
+
+.casino-card img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  background:#333;
+  transition:transform 0.4s ease;
+}
+
+/* Золотая полоска с названием казино */
+.casino-title-strip {
+  background: linear-gradient(135deg, var(--wood), var(--accent));
+  padding: 12px 15px;
+  text-align: center;
+  position: relative;
+  z-index: 5;
+}
+
+.casino-title-strip h3 {
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  letter-spacing: 0.5px;
+}
+
+.casino-info{
+  padding:15px 20px 15px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  flex:1;
+  position: relative;
+}
+.casino-info p{
+  margin:0;
+  color:#e0e0e0;
+  font-size:14px;
+  line-height:1.5;
+  min-height:42px;
+  text-align:center;
+  font-weight:500;
+}
+
+/* Текст "Промокод при регистрации" */
+.promo-label {
+  color: var(--wood);
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
 /* Хинт при наведении */
 .casino-hint {
   position: absolute;
@@ -43,6 +286,62 @@
   top: -60px;
 }
 
+/* купон */
+.promo{ 
+  background: linear-gradient(135deg, var(--coupon), #444);
+  border-radius:12px; 
+  padding:12px 16px; 
+  text-align:center; 
+  cursor:pointer; 
+  border:2px dashed var(--wood); 
+  font-weight:800; 
+  font-family:monospace; 
+  color:var(--wood);
+  font-size:16px;
+  transition: all 0.3s ease;
+  position:relative;
+  overflow:hidden;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.promo:hover{ 
+  background: linear-gradient(135deg, #444, #555); 
+  border-style: solid; 
+  transform:scale(1.03);
+  box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+}
+.promo.copied{ 
+  background: var(--success-green); 
+  color:white; 
+  border-style:solid; 
+  border-color: var(--success-green);
+  animation:pulse 0.5s ease;
+}
+@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
+
+/* кнопка в игру */
+.play-button{
+  margin:10px; 
+  padding:14px 20px; 
+  border-radius:12px; 
+  border:none; 
+  cursor:pointer; 
+  font-weight:800;
+  font-size:16px;
+  background: linear-gradient(135deg,var(--wood), var(--accent)); 
+  color:#1a1a1a;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+  position:relative;
+  overflow:hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.play-button:hover{ 
+  background: linear-gradient(135deg,#ffd700, #d4af37); 
+  transform: translateY(-2px); 
+}
+
 /* Кнопка "понял" для SCAM */
 .scam-action {
   margin: 10px;
@@ -71,4 +370,346 @@
   font-size: 20px;
   font-weight: 600;
   color: var(--muted);
+}
+
+/* scam special */
+.casino-card.scam .play-button{ 
+  background: linear-gradient(135deg,#c85b5b,#e07a7a); 
+  color:white;
+}
+.casino-card.scam .play-button:hover{ 
+  background: linear-gradient(135deg,#e07a7a,#ff8a8a); 
+}
+
+/* SCAM fall animation */
+@keyframes scamFall {
+  0% { transform: rotate(0) translateY(0); opacity:1 }
+  60% { transform: rotate(15deg) translateY(100px); opacity:0.8 }
+  100% { transform: rotate(45deg) translateY(1000px); opacity:0 }
+}
+.casino-card.fall{ animation: scamFall 1.2s ease forwards }
+
+/* modal bybit */
+#bybit-instruction { 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+#bybit-instruction.hidden { display: none; }
+#bybit-instruction .modal{ 
+  max-width:500px; 
+  width:90%;
+  padding:40px 30px;
+  border-radius:20px; 
+  background:linear-gradient(145deg,#2a2a2a,#1f1f1f); 
+  border:3px solid var(--wood);
+  position: relative;
+  box-shadow: 0 0 50px rgba(212,175,55,0.5);
+  animation: modalAppear 0.3s ease;
+}
+@keyframes modalAppear{
+  from{opacity:0;transform:scale(0.9);}
+  to{opacity:1;transform:scale(1);}
+}
+.close-btn{ 
+  position:absolute; 
+  right:20px; 
+  top:20px; 
+  background:transparent; 
+  border:none; 
+  font-size:28px; 
+  cursor:pointer;
+  color: var(--wood);
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.close-btn:hover{ background: #333; transform:rotate(90deg); }
+
+/* donate */
+.donate-button{ 
+  display:inline-block; 
+  padding:14px 28px; 
+  border-radius:12px; 
+  background:linear-gradient(135deg,var(--wood),var(--accent));
+  color:#1a1a1a;
+  text-decoration:none;
+  font-weight:800;
+  border: none;
+  cursor: pointer;
+  font-size:16px;
+  transition: all 0.3s ease;
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+  text-align: center;
+}
+.donate-button:hover{ 
+  background:linear-gradient(135deg,#ffd700,#d4af37); 
+  transform: translateY(-2px); 
+}
+
+/* Кнопка открытия модалки */
+.open-modal-btn {
+  background: linear-gradient(135deg,var(--accent),var(--wood));
+  color: #1a1a1a;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  font-size:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+.open-modal-btn:hover {
+  background: linear-gradient(135deg,var(--wood),#ffd700);
+  transform: translateY(-2px);
+}
+
+/* Денежный дождь */
+.money {
+  width: 100%;
+  height: 1200px;
+  position: fixed;
+  top: -200px;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.money i {
+  display: inline-block;
+  animation: money 3s linear 2s 20;
+  position: relative;
+  background-image: url('data:image/svg+xml,%3Csvg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"%3E%3Cg%3E%3Cg%3E%3Cpath style="fill:%2374D24F;" d="M496,112H16c-8.82,0-16,7.18-16,16v256c0,8.82,7.18,16,16,16h480c8.82,0,16-7.18,16-16V128 C512,119.18,504.82,112,496,112z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23FFEFBC;" d="M472,192c-22.055,0-40-17.945-40-40c0-4.422-3.578-8-8-8H88c-4.422,0-8,3.578-8,8 c0,22.055-17.945,40-40,40c-4.422,0-8,3.578-8,8v112c0,4.422,3.578,8,8,8c22.055,0,40,17.945,40,40c0,4.422,3.578,8,8,8h336 c4.422,0,8-3.578,8-8c0-22.055,17.945-40,40-40c4.422,0,8-3.578,8-8V200C480,195.578,476.422,192,472,192z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23869B55;" d="M128,256c0,48.221,26.691,90.175,66.081,112h123.839C357.309,346.175,384,304.221,384,256 s-26.691-90.175-66.081-112H194.08C154.691,165.825,128,207.779,128,256z"/%3E%3C/g%3E%3Cg%3E%3Cpath style="fill:%23FFEFBC;" d="M256,244c-16.023,0-28-8.445-28-16c0-7.555,11.977-16,28-16s28,8.445,28,16c0,6.625,5.375,12,12,12 s12-5.375,12-12c0-19.236-16.824-34.862-40-38.932V184c0-6.625-5.375-12-12-12s-12,5.375-12,12v5.068 c-23.176,4.07-40,19.695-40,38.932c0,22.43,22.844,40,52,40c16.023,0,28,8.445,28,16c0,7.555-11.977,16-28,16s-28-8.445-28-16 c0-6.625-5.375-12-12-12s-12,5.375-12,12c0,19.236,16.824,34.862,40,38.932V328c0,6.625,5.375,12,12,12s12-5.375,12-12v-5.068 c23.176-4.07,40-19.695,40-38.932C308,261.57,285.156,244,256,244z"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%2374D24F;" cx="80" cy="256" r="24"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%2374D24F;" cx="432" cy="256" r="24"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="40" cy="152" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="472" cy="152" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="40" cy="360" r="16"/%3E%3C/g%3E%3Cg%3E%3Ccircle style="fill:%23869B55;" cx="472" cy="360" r="16"/%3E%3C/g%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3Cg%3E%3C/g%3E%3C/svg%3E%0A');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: fadeInMoney 3s ease 3s forwards, money 3s linear 2s 20;
+}
+
+@keyframes money {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.6);
+  }
+  100% {
+    transform: translate3d(15px, 1200px, 0px) rotate(360deg) scale(0.6);
+  }
+}
+
+@keyframes fadeInMoney {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.money i:nth-child(3n) {
+  width: 40px;
+  height: 40px;
+  animation-duration: 4s;
+  animation-iteration-count: 30;
+  transform-origin: right -45px;
+}
+
+.money i:nth-child(3n + 1) {
+  width: 50px;
+  height: 50px;
+  animation-duration: 6s;
+  animation-iteration-count: 45;
+  transform-origin: right -30px;
+}
+
+.money i:nth-child(3n + 2) {
+  width: 65px;
+  height: 65px;
+  animation-duration: 8s;
+  animation-iteration-count: 60;
+  transform-origin: right -15px;
+}
+
+/* different delays so they don't all start at the same time */
+.money i:nth-child(7n) {
+  opacity: 0;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+}
+.money i:nth-child(7n + 1) {
+  opacity: 0;
+  animation-delay: 1s;
+  animation-timing-function: ease-out;
+}
+.money i:nth-child(7n + 2) {
+  opacity: 0;
+  animation-delay: 1.5s;
+  animation-timing-function: linear;
+}
+.money i:nth-child(7n + 3) {
+  opacity: 0;
+  animation-delay: 2s;
+  animation-timing-function: ease-in;
+}
+.money i:nth-child(7n + 4) {
+  opacity: 0;
+  animation-delay: 2.5s;
+  animation-timing-function: linear;
+}
+.money i:nth-child(7n + 5) {
+  opacity: 0;
+  animation-delay: 3s;
+  animation-timing-function: ease-out;
+}
+.money i:nth-child(7n + 6) {
+  opacity: 0;
+  animation-delay: 3.5s;
+  animation-timing-function: ease-in;
+}
+
+/* footer */
+footer{ 
+  margin-top: auto;
+  padding: 40px 20px;
+  text-align:center;
+  color:var(--muted);
+  border-top:2px solid var(--wood);
+  background: #111;
+  width: 100%;
+  position: relative;
+  z-index: 3;
+}
+.footer-content {
+  max-width: var(--maxw);
+  margin: 0 auto;
+}
+.footer-text{
+  max-width:600px;
+  margin:0 auto;
+  line-height:1.6;
+  font-size:14px;
+}
+
+/* Форма отзыва */
+.review-section {
+  margin: 40px auto;
+  padding: 30px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  border: 2px solid var(--wood);
+  max-width: 600px;
+  box-shadow: 0 8px 25px var(--shadow);
+}
+
+.review-title {
+  color: var(--wood);
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.review-input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid var(--wood);
+  background: #333;
+  color: var(--muted);
+  font-size: 16px;
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.review-input:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(212,175,55,0.3);
+}
+
+/* Кнопка "Наверх" */
+#scrollToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: var(--wood);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+#scrollToTop:hover {
+  background: #ffd700;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+}
+
+/* responsive */
+@media (max-width:1024px){
+  .casino-grid{grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));}
+}
+
+@media (max-width:768px){
+  .casino-grid{grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));gap:20px;}
+  header h1{font-size:32px;}
+  #search-section{padding:0 15px;}
+  .casino-info{padding:15px;}
+  #action-buttons{flex-direction:column;gap:15px;}
+  #scrollToTop {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  .review-section {
+    margin: 30px 15px;
+    padding: 20px;
+  }
+}
+
+@media (max-width:480px){
+  .container{padding:20px 15px;}
+  .casino-grid{grid-template-columns:1fr;gap:15px;}
+  header h1{font-size:28px;}
+  #searchInput{padding:10px 15px;font-size:14px;}
+  .cat-btn{padding:8px 15px;font-size:13px;}
+  #scrollToTop {
+    bottom: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  .review-section {
+    margin: 20px 10px;
+    padding: 15px;
+  }
+  .review-title {
+    font-size: 20px;
+  }
 }
