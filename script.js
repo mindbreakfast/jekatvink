@@ -56,7 +56,7 @@ function createCard(c) {
             <div class="casino-hint">${c.hint || 'Отличный выбор!'}</div>
             <h3>${c.name}</h3>
             <p>${c.desc}</p>
-            ${c.promo ? `<div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
+            ${c.promo ? `<div class="promo-label">Промокод при регистрации</div><div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
             <button class="play-button">${c.name === 'СКАМ' || c.fake ? 'в игру' : 'в игру'}</button>
         </div>
     `;
