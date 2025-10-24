@@ -61,7 +61,7 @@ function createCard(c) {
                 <p>${c.desc}</p>
                 <button class="scam-action">
                     <span class="scam-emoji">👍</span>
-                    <span>понял</span>
+                    <span class="scam-text">понял</span>
                 </button>
             </div>
         `;
