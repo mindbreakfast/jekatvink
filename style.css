@@ -217,9 +217,7 @@ header .subtitle{
 }
 
 .action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-block;
   padding: 16px 32px;
   border-radius: 12px;
   text-decoration: none;
@@ -229,8 +227,9 @@ header .subtitle{
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 220px;
-  justify-content: center;
+  text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  font-family: 'Montserrat', sans-serif;
 }
 
 .open-modal-btn {
@@ -246,10 +245,6 @@ header .subtitle{
 .action-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--neon-glow);
-}
-
-.action-btn i {
-  font-size: 18px;
 }
 
 /* search + categories */
@@ -284,7 +279,7 @@ header .subtitle{
   justify-items: center;
 }
 
-/* карточка */
+/* карточка с золотой рамкой */
 .casino-card{
   background:var(--card-bg);
   border-radius:16px;
@@ -299,11 +294,13 @@ header .subtitle{
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--wood);
 }
 .casino-card:hover{ 
   box-shadow: 0 15px 35px rgba(212,175,55,0.25),
               var(--neon-glow);
   transform: translateY(-5px);
+  border-color: #ffd700;
 }
 
 .casino-card::before {
@@ -342,7 +339,7 @@ header .subtitle{
 .casino-title-strip h3 {
   margin: 0;
   color: #1a1a1a;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0,0,0,0.2);
   letter-spacing: 0.5px;
@@ -356,14 +353,35 @@ header .subtitle{
   flex:1;
   position: relative;
 }
-.casino-info p{
-  margin:0;
-  color:#e0e0e0;
-  font-size:14px;
-  line-height:1.5;
-  min-height:42px;
-  text-align:center;
-  font-weight:500;
+
+/* Красивое оформление бонусов */
+.bonus-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.bonus-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid var(--wood);
+}
+
+.bonus-item i {
+  color: var(--wood);
+  font-size: 14px;
+}
+
+.bonus-text {
+  color: #e0e0e0;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* Текст "Промокод при регистрации" */
