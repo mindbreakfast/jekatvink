@@ -12,8 +12,7 @@
   --success-green: #4CAF50;
   --neon-gold: #ffd700;
   --neon-glow: 0 0 10px var(--neon-gold), 
-               0 0 20px var(--neon-gold), 
-               0 0 40px var(--neon-gold);
+               0 0 20px var(--neon-gold);
 }
 
 /* Стилизация скроллбара */
@@ -42,7 +41,7 @@
 
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{
-  font-family: 'Roboto Condensed', 'Oswald', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   color:var(--muted);
 }
 body{
@@ -112,27 +111,31 @@ body.loaded #loader {
 
 /* header */
 header{text-align:center;margin-bottom:30px;padding:0 20px;}
-header h1{font-size:42px;color:var(--wood);margin-bottom:10px;text-shadow: var(--neon-glow);letter-spacing: 2px;font-family: 'Oswald', sans-serif;font-weight: 700;animation: neonPulse 2s infinite alternate;}
-header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto;}
-
-@keyframes neonPulse {
-  from {
-    text-shadow: 0 0 10px var(--neon-gold), 
-                 0 0 20px var(--neon-gold), 
-                 0 0 40px var(--neon-gold);
-  }
-  to {
-    text-shadow: 0 0 5px var(--neon-gold), 
-                 0 0 10px var(--neon-gold), 
-                 0 0 15px var(--neon-gold),
-                 0 0 20px var(--neon-gold);
-  }
+header h1{
+  font-size:42px;
+  color:var(--wood);
+  margin-bottom:10px;
+  text-shadow: 2px 2px 0 #000, 
+               -2px -2px 0 #000, 
+               2px -2px 0 #000, 
+               -2px 2px 0 #000,
+               var(--neon-glow);
+  letter-spacing: 1px;
+  font-weight: 800;
+  position: relative;
+}
+header .subtitle{
+  color:var(--muted);
+  font-size:16px;
+  max-width:600px;
+  margin:0 auto;
+  font-weight: 500;
 }
 
 /* Кнопки соцсетей */
 #social-buttons {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   justify-content: center;
   align-items: center;
   margin-bottom: 30px;
@@ -148,11 +151,11 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   padding: 15px 20px;
   border-radius: 12px;
   text-decoration: none;
-  color: var(--muted);
+  color: white;
   background: #333;
-  border: 2px solid var(--wood);
+  border: 2px solid #444;
   transition: all 0.3s ease;
-  min-width: 100px;
+  min-width: 90px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   position: relative;
   overflow: hidden;
@@ -161,15 +164,15 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
 .social-btn:hover {
   transform: translateY(-3px);
   box-shadow: var(--neon-glow);
-  background: #3a3a3a;
+  border-color: var(--wood);
 }
 
-.social-icon {
+.social-btn i {
   font-size: 24px;
   transition: transform 0.3s ease;
 }
 
-.social-btn:hover .social-icon {
+.social-btn:hover i {
   transform: scale(1.2);
 }
 
@@ -181,13 +184,26 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
 }
 
 /* Цвета для разных соцсетей */
-.telegram-channel:hover { border-color: #0088cc; box-shadow: 0 0 10px #0088cc, 0 0 20px #0088cc; }
-.kick:hover { border-color: #53fc18; box-shadow: 0 0 10px #53fc18, 0 0 20px #53fc18; }
-.vk:hover { border-color: #4c75a3; box-shadow: 0 0 10px #4c75a3, 0 0 20px #4c75a3; }
-.youtube:hover { border-color: #ff0000; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
-.instagram:hover { border-color: #e4405f; box-shadow: 0 0 10px #e4405f, 0 0 20px #e4405f; }
-.tiktok:hover { border-color: #69c9d0; box-shadow: 0 0 10px #69c9d0, 0 0 20px #69c9d0; }
-.telegram-chat:hover { border-color: #0088cc; box-shadow: 0 0 10px #0088cc, 0 0 20px #0088cc; }
+.telegram-channel { background: #0088cc; }
+.telegram-channel:hover { box-shadow: 0 0 15px #0088cc; }
+
+.kick { background: #53fc18; color: #000; }
+.kick:hover { box-shadow: 0 0 15px #53fc18; }
+
+.vk { background: #4c75a3; }
+.vk:hover { box-shadow: 0 0 15px #4c75a3; }
+
+.youtube { background: #ff0000; }
+.youtube:hover { box-shadow: 0 0 15px #ff0000; }
+
+.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.instagram:hover { box-shadow: 0 0 15px #e4405f; }
+
+.tiktok { background: #000; }
+.tiktok:hover { box-shadow: 0 0 15px #69c9d0; }
+
+.telegram-chat { background: #0088cc; }
+.telegram-chat:hover { box-shadow: 0 0 15px #0088cc; }
 
 /* Кнопки действий */
 #action-buttons {
@@ -200,6 +216,42 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   padding: 0 20px;
 }
 
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 220px;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.open-modal-btn {
+  background: linear-gradient(135deg, var(--accent), var(--wood));
+  color: #1a1a1a;
+}
+
+.donate-button {
+  background: linear-gradient(135deg, var(--wood), var(--accent));
+  color: #1a1a1a;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neon-glow);
+}
+
+.action-btn i {
+  font-size: 18px;
+}
+
 /* search + categories */
 #search-section{display:flex;flex-direction:column;align-items:center;gap:15px;margin-bottom:30px;padding:0 20px;}
 #searchInput{
@@ -208,6 +260,7 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   color: var(--muted);
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
 }
 #searchInput:focus{outline:none;border-color:#ffd700;box-shadow:0 0 15px rgba(212,175,55,0.3);}
 #categoryButtons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
@@ -216,21 +269,10 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   padding:10px 18px;border-radius:25px;color:var(--muted);cursor:pointer;font-weight:600;
   transition: all 0.3s ease;
   font-size:14px;
+  font-family: 'Montserrat', sans-serif;
 }
 .cat-btn:hover{background:#3a3a3a;transform:translateY(-2px);}
-.cat-btn.active{ background: var(--wood); color:#1a1a1a; box-shadow: var(--neon-glow); transform:translateY(-2px); animation: buttonGlow 2s infinite alternate; }
-
-@keyframes buttonGlow {
-  from {
-    box-shadow: 0 0 10px var(--neon-gold), 
-                0 0 20px var(--neon-gold);
-  }
-  to {
-    box-shadow: 0 0 15px var(--neon-gold), 
-                0 0 30px var(--neon-gold),
-                0 0 45px var(--neon-gold);
-  }
-}
+.cat-btn.active{ background: var(--wood); color:#1a1a1a; box-shadow: var(--neon-glow); transform:translateY(-2px); }
 
 /* grid карточек - 4 колонки */
 .casino-grid{
@@ -295,7 +337,6 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   text-align: center;
   position: relative;
   z-index: 5;
-  box-shadow: 0 0 15px rgba(212,175,55,0.5);
 }
 
 .casino-title-strip h3 {
@@ -305,7 +346,6 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0,0,0,0.2);
   letter-spacing: 0.5px;
-  font-family: 'Oswald', sans-serif;
 }
 
 .casino-info{
@@ -380,13 +420,13 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   font-size:16px;
   background: linear-gradient(135deg,var(--wood), var(--accent)); 
   color:#1a1a1a;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4), 
-              var(--neon-glow);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
   transition: all 0.3s ease;
   position:relative;
   overflow:hidden;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-family: 'Montserrat', sans-serif;
 }
 .play-button:hover{ 
   background: linear-gradient(135deg,#ffd700, #d4af37); 
@@ -490,47 +530,6 @@ header .subtitle{color:var(--muted);font-size:16px;max-width:600px;margin:0 auto
   transition: all 0.3s ease;
 }
 .close-btn:hover{ background: #333; transform:rotate(90deg); }
-
-/* donate */
-.donate-button{ 
-  display:inline-block; 
-  padding:14px 28px; 
-  border-radius:12px; 
-  background:linear-gradient(135deg,var(--wood),var(--accent));
-  color:#1a1a1a;
-  text-decoration:none;
-  font-weight:800;
-  border: none;
-  cursor: pointer;
-  font-size:16px;
-  transition: all 0.3s ease;
-  box-shadow:0 8px 20px rgba(0,0,0,0.3);
-  text-align: center;
-}
-.donate-button:hover{ 
-  background:linear-gradient(135deg,#ffd700,#d4af37); 
-  transform: translateY(-2px); 
-  box-shadow: var(--neon-glow);
-}
-
-/* Кнопка открытия модалки */
-.open-modal-btn {
-  background: linear-gradient(135deg,var(--accent),var(--wood));
-  color: #1a1a1a;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 800;
-  transition: all 0.3s ease;
-  font-size:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.3);
-}
-.open-modal-btn:hover {
-  background: linear-gradient(135deg,var(--wood),#ffd700);
-  transform: translateY(-2px);
-  box-shadow: var(--neon-glow);
-}
 
 /* Денежный дождь */
 .money {
@@ -665,8 +664,7 @@ footer{
   border-radius: 16px;
   border: 2px solid var(--wood);
   max-width: 600px;
-  box-shadow: 0 8px 25px var(--shadow),
-              var(--neon-glow);
+  box-shadow: 0 8px 25px var(--shadow);
 }
 
 .review-title {
@@ -688,7 +686,7 @@ footer{
   resize: vertical;
   min-height: 120px;
   transition: all 0.3s ease;
-  font-family: inherit;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .review-input:focus {
@@ -736,9 +734,10 @@ footer{
   .casino-info{padding:15px;}
   #social-buttons{gap:10px;}
   .social-btn{padding:12px 15px;min-width:80px;}
-  .social-icon{font-size:20px;}
+  .social-btn i{font-size:20px;}
   .social-text{font-size:11px;}
   #action-buttons{flex-direction:column;gap:15px;}
+  .action-btn{min-width:200px;padding:14px 28px;}
   #scrollToTop {
     bottom: 20px;
     right: 20px;
@@ -760,8 +759,9 @@ footer{
   .cat-btn{padding:8px 15px;font-size:13px;}
   #social-buttons{gap:8px;}
   .social-btn{padding:10px 12px;min-width:70px;}
-  .social-icon{font-size:18px;}
+  .social-btn i{font-size:18px;}
   .social-text{font-size:10px;}
+  .action-btn{min-width:180px;padding:12px 24px;font-size:14px;}
   #scrollToTop {
     bottom: 15px;
     right: 15px;
