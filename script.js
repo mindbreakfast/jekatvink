@@ -50,6 +50,15 @@ function createCard(c) {
     if (c.fake) card.classList.add('scam');
     card.dataset.categories = (c.categories||[]).join(' ');
     
+    // Разбиваем описание на отдельные бонусы
+    const bonusItems = c.desc.split('. ').filter(item => item.trim());
+    const bonusHTML = bonusItems.map(item => `
+        <div class="bonus-item">
+            <i class="fas fa-gift"></i>
+            <span class="bonus-text">${item.trim()}</span>
+        </div>
+    `).join('');
+    
     if (c.fake) {
         card.innerHTML = `
             <img src="${c.img}" alt="${c.name}" loading="lazy">
@@ -71,7 +80,9 @@ function createCard(c) {
                 <h3>${c.name}</h3>
             </div>
             <div class="casino-info">
-                <p>${c.desc}</p>
+                <div class="bonus-items">
+                    ${bonusHTML}
+                </div>
                 ${c.promo ? `<div class="promo-label">Промокод при регистрации</div><div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
                 <button class="play-button">в игру</button>
             </div>
