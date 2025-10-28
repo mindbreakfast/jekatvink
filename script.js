@@ -126,21 +126,22 @@ function createCard(c) {
         });
     }
     
-    const btn = card.querySelector(c.fake ? '.scam-action' : '.play-button');
-    if (c.fake) {
+    const btn = card.querySelector('.scam-action');
+    if (btn) {
         btn.addEventListener('click', () => {
             card.classList.add('fall');
             setTimeout(() => card.remove(), 1200);
         });
-    } else {
-        // Для реальных казино - кнопка теперь ссылка <a>, обработчик не нужен
     }
+    
     return card;
 }
 
 function renderCasinos(list = CASINOS) {
     casinoList.innerHTML = '';
-    list.forEach(c => casinoList.appendChild(createCard(c)));
+    // Сортируем казино по порядку
+    const sortedList = [...list].sort((a, b) => (a.order || 0) - (b.order || 0));
+    sortedList.forEach(c => casinoList.appendChild(createCard(c)));
 }
 
 // ================ Filters & Search ================
@@ -160,14 +161,18 @@ function variantsOf(q) {
 }
 
 function applyFilters() {
-    const activeBtn = categoryButtons.querySelector('.active');
+    const activeBtn = categoryButtons.querySelector('.cat-btn.active');
     const cat = activeBtn ? activeBtn.dataset.cat : 'all';
     const q = searchInput.value.trim().toLowerCase();
     const vars = variantsOf(q);
     
     Array.from(casinoList.children).forEach(card => {
         const title = (card.querySelector('h3') || {}).textContent.toLowerCase();
-        const desc = (card.querySelector('p') || {}).textContent.toLowerCase();
+        const descElements = card.querySelectorAll('.bonus-text');
+        let desc = '';
+        descElements.forEach(el => {
+            desc += el.textContent + ' ';
+        });
         const promo = (card.querySelector('.promo') || {}).dataset.code || '';
         const hay = (title + ' ' + desc + ' ' + promo).toLowerCase();
         const matchQ = !q || vars.some(v => v && hay.includes(v));
