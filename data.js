@@ -2,57 +2,67 @@
 const CASINOS = [
     {
         "name": "Вавада", 
-        "desc": "+300% к депозиту. +150 спинов", 
-        "promo": "JekaTvin", 
-        "categories": ["Топ", "Крипто"], 
+        "desc": "125% на первый депозит. + 300FS", 
+        "promo": "JVB", 
+        "categories": ["ПлейФорты"], 
         "img": "https://jekatvink.vercel.app/vavada.jpg", 
-        "url": "https://example.com/vavada", // Замените на реальную реф ссылку
-        "hint": "Хороший выбор!"
+        "url": "https://vodka5.xyz?id=9734"
     },
     {
         "name": "Стейк", 
-        "desc": "+300% к депозиту. +150 спинов", 
-        "promo": "JekaTvin", 
-        "categories": ["Топ", "Крипто"], 
+        "desc": "Криптоказино. Мгновенные выводы", 
+        "promo": "", 
+        "categories": ["Криптоказино"], 
         "img": "https://jekatvink.vercel.app/img/stake.png", 
-        "url": "https://example.com/stake", // Замените на реальную реф ссылку
-        "hint": "Часто тут играю"
+        "url": "https://stake1039.com/?offer=tvink&c=TVINK"
     },
     {
-        "name": "Водка", 
-        "desc": "+300% к депозиту. +150 спинов", 
-        "promo": "JekaTvin", 
-        "categories": ["Крипто", "Новые"], 
-        "img": "https://арчизнал.рф/img/vodka.jpg", 
-        "url": "https://example.com/vodka", // Замените на реальную реф ссылку
-        "hint": "Депай смело"
+        "name": "GRIZZLY", 
+        "desc": "Кешбек до 15%", 
+        "promo": "", 
+        "categories": ["Криптоказино"], 
+        "img": "https://jekatvink.vercel.app/img/grizzly.jpg", 
+        "url": "https://grizzly-link.com/affiliate/36q0mjf7"
     },
     {
-        "name": "Буй", 
-        "desc": "+300% к депозиту. +150 спинов", 
-        "promo": "JekaTvin", 
-        "categories": ["Топ"], 
-        "img": "https://арчизнал.рф/img/booi.jpg", 
-        "url": "https://example.com/booi", // Замените на реальную реф ссылку
-        "hint": "Я тут заносил"
+        "name": "Duel", 
+        "desc": "Криптоказино. Мгновенные выводы", 
+        "promo": "", 
+        "categories": ["Криптоказино"], 
+        "img": "https://jekatvink.vercel.app/img/duel.jpg", 
+        "url": "https://duel.com/r/JekaTvink"
+    },
+    {
+        "name": "Winity", 
+        "desc": "Бонус 225%. + 100FS до 1500$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://jekatvink.vercel.app/img/winity.jpg", 
+        "url": "https://winity.one/alt/winity/sign-up/?519f28cfce4587e60a0decbc6997267c&promocode=TVINK"
     },
     {
         "name": "ПлейФортуна", 
-        "desc": "+300% к депозиту. +150 спинов", 
-        "promo": "JekaTvin", 
-        "categories": ["Новые"], 
+        "desc": "Бонус 175%. + 100FS до 1000$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
         "img": "https://арчизнал.рф/img/playfortuna.jpg", 
-        "url": "https://example.com/playfortuna", // Замените на реальную реф ссылку
-        "hint": "Тут ваще четко"
+        "url": "https://fortuna-promo1.net/alt/playfortuna/registration?1b6c8a97f81a5d558a8ad8bf7b05d1ef&promocode=TVINK"
     },
     {
-        "name": "ДжойКазино", 
-        "desc": "+300% к депозиту. +150 спинов", 
-        "promo": "JekaTvin", 
-        "categories": ["Топ"], 
-        "img": "https://jekatvink.vercel.app/img/joycasino.jpg", 
-        "url": "https://example.com/joycasino", // Замените на реальную реф ссылку
-        "hint": "Не забудь промокод!"
+        "name": "Booi", 
+        "desc": "Бонус 225%. + 100FS до 1500$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://арчизнал.рф/img/booi.jpg", 
+        "url": "https://booi-promo.com/alt/booi/ru/sign-up?584daead1fadee42b85f370248da1303&promocode=TVINK"
+    },
+    {
+        "name": "JOZZ", 
+        "desc": "Бонус 100% до 500$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://jekatvink.vercel.app/img/jozz.jpg", 
+        "url": "https://jozz-promo1.com/alt/jozz/registration?ff4aa90ee72bc1dfb2f2a8a25674f700&promocode=TVINK"
     },
     {
         "name": "Чотко!", 
@@ -61,7 +71,6 @@ const CASINOS = [
         "categories": [], 
         "img": "https://jekatvink.vercel.app/img/scam.jpg", 
         "url": "#", 
-        "fake": true,
-        "hint": "Понял?!"
+        "fake": true
     }
 ];
