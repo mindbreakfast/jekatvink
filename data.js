@@ -3,7 +3,7 @@ const CASINOS = [
     {
         "name": "Вавада", 
         "desc": "125% на первый депозит. + 300FS", 
-        "promo": "JVB", 
+        "promo": "TVINK", 
         "categories": ["ПлейФорты"], 
         "img": "https://jekatvink.vercel.app/vavada.jpg", 
         "url": "https://vodka5.xyz?id=9734"
@@ -11,7 +11,7 @@ const CASINOS = [
     {
         "name": "Стейк", 
         "desc": "Криптоказино. Мгновенные выводы", 
-        "promo": "", 
+        "promo": "TVINK", 
         "categories": ["Криптоказино"], 
         "img": "https://jekatvink.vercel.app/img/stake.png", 
         "url": "https://stake1039.com/?offer=tvink&c=TVINK"
@@ -19,7 +19,7 @@ const CASINOS = [
     {
         "name": "GRIZZLY", 
         "desc": "Кешбек до 15%", 
-        "promo": "", 
+        "promo": "TVINK", 
         "categories": ["Криптоказино"], 
         "img": "https://jekatvink.vercel.app/img/grizzly.jpg", 
         "url": "https://grizzly-link.com/affiliate/36q0mjf7"
@@ -27,7 +27,7 @@ const CASINOS = [
     {
         "name": "Duel", 
         "desc": "Криптоказино. Мгновенные выводы", 
-        "promo": "", 
+        "promo": "TVINK", 
         "categories": ["Криптоказино"], 
         "img": "https://jekatvink.vercel.app/img/duel.jpg", 
         "url": "https://duel.com/r/JekaTvink"
