@@ -6,8 +6,7 @@ const CASINOS = [
         "promo": "TVINK", 
         "categories": ["ПлейФорты", "Топ"], 
         "img": "https://jekatvink.vercel.app/vavada.jpg", 
-        "url": "https://vodka5.xyz?id=9734",
-        "order": 1
+        "url": "https://vodka5.xyz?id=9734"
     },
     {
         "name": "Стейк", 
@@ -15,26 +14,23 @@ const CASINOS = [
         "promo": "TVINK", 
         "categories": ["Криптоказино", "Топ"], 
         "img": "https://jekatvink.vercel.app/img/stake.png", 
-        "url": "https://stake1039.com/?offer=tvink&c=TVINK",
-        "order": 2
+        "url": "https://stake1039.com/?offer=tvink&c=TVINK"
     },
     {
         "name": "GRIZZLY", 
         "desc": "Кешбек до 15%. Быстрые выводы", 
         "promo": "TVINK", 
-        "categories": ["Криптоказино"], 
+        "categories": ["Криптоказино", "Топ"], 
         "img": "https://jekatvink.vercel.app/img/grizzly.jpg", 
-        "url": "https://grizzly-link.com/affiliate/36q0mjf7",
-        "order": 4
+        "url": "https://grizzly-link.com/affiliate/36q0mjf7"
     },
     {
         "name": "Duel", 
         "desc": "Криптоказино. Мгновенные выводы", 
         "promo": "TVINK", 
-        "categories": ["Криптоказино"", Топ"], 
+        "categories": ["Криптоказино"], 
         "img": "https://jekatvink.vercel.app/img/duel.jpg", 
-        "url": "https://duel.com/r/JekaTvink",
-        "order": 3
+        "url": "https://duel.com/r/JekaTvink"
     },
     {
         "name": "Winity", 
@@ -42,8 +38,7 @@ const CASINOS = [
         "promo": "TVINK", 
         "categories": ["ПлейФорты"], 
         "img": "https://jekatvink.vercel.app/img/winity.jpg", 
-        "url": "https://winity.one/alt/winity/sign-up/?519f28cfce4587e60a0decbc6997267c&promocode=TVINK",
-        "order": 5
+        "url": "https://winity.one/alt/winity/sign-up/?519f28cfce4587e60a0decbc6997267c&promocode=TVINK"
     },
     {
         "name": "ПлейФортуна", 
@@ -51,8 +46,7 @@ const CASINOS = [
         "promo": "TVINK", 
         "categories": ["ПлейФорты"], 
         "img": "https://арчизнал.рф/img/playfortuna.jpg", 
-        "url": "https://fortuna-promo1.net/alt/playfortuna/registration?1b6c8a97f81a5d558a8ad8bf7b05d1ef&promocode=TVINK",
-        "order": 6
+        "url": "https://fortuna-promo1.net/alt/playfortuna/registration?1b6c8a97f81a5d558a8ad8bf7b05d1ef&promocode=TVINK"
     },
     {
         "name": "Booi", 
@@ -60,8 +54,7 @@ const CASINOS = [
         "promo": "TVINK", 
         "categories": ["ПлейФорты"], 
         "img": "https://арчизнал.рф/img/booi.jpg", 
-        "url": "https://booi-promo.com/alt/booi/ru/sign-up?584daead1fadee42b85f370248da1303&promocode=TVINK",
-        "order": 7
+        "url": "https://booi-promo.com/alt/booi/ru/sign-up?584daead1fadee42b85f370248da1303&promocode=TVINK"
     },
     {
         "name": "JOZZ", 
@@ -69,8 +62,7 @@ const CASINOS = [
         "promo": "TVINK", 
         "categories": ["ПлейФорты"], 
         "img": "https://jekatvink.vercel.app/img/jozz.jpg", 
-        "url": "https://jozz-promo1.com/alt/jozz/registration?ff4aa90ee72bc1dfb2f2a8a25674f700&promocode=TVINK",
-        "order": 8
+        "url": "https://jozz-promo1.com/alt/jozz/registration?ff4aa90ee72bc1dfb2f2a8a25674f700&promocode=TVINK"
     },
     {
         "name": "Чотко!", 
@@ -79,7 +71,6 @@ const CASINOS = [
         "categories": [], 
         "img": "https://jekatvink.vercel.app/img/scam.jpg", 
         "url": "#", 
-        "fake": true,
-        "order": 9
+        "fake": true
     }
 ];
