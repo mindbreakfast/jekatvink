@@ -4,7 +4,7 @@ const CASINOS = [
         "name": "Вавада", 
         "desc": "125% на первый депозит. + 300FS", 
         "promo": "TVINK", 
-        "categories": ["ПлейФорты"], 
+        "categories": ["ПлейФорты", "Топ"], 
         "img": "https://jekatvink.vercel.app/vavada.jpg", 
         "url": "https://vodka5.xyz?id=9734"
     },
@@ -12,15 +12,15 @@ const CASINOS = [
         "name": "Стейк", 
         "desc": "Криптоказино. Мгновенные выводы", 
         "promo": "TVINK", 
-        "categories": ["Криптоказино"], 
+        "categories": ["Криптоказино", "Топ"], 
         "img": "https://jekatvink.vercel.app/img/stake.png", 
         "url": "https://stake1039.com/?offer=tvink&c=TVINK"
     },
     {
         "name": "GRIZZLY", 
-        "desc": "Кешбек до 15%", 
+        "desc": "Кешбек до 15%. Быстрые выводы", 
         "promo": "TVINK", 
-        "categories": ["Криптоказино"], 
+        "categories": ["Криптоказино", "Топ"], 
         "img": "https://jekatvink.vercel.app/img/grizzly.jpg", 
         "url": "https://grizzly-link.com/affiliate/36q0mjf7"
     },
@@ -36,7 +36,7 @@ const CASINOS = [
         "name": "Winity", 
         "desc": "Бонус 225%. + 100FS до 1500$", 
         "promo": "TVINK", 
-        "categories": ["ПлейФорты"], 
+        "categories": ["ПлейФорты", "Топ"], 
         "img": "https://jekatvink.vercel.app/img/winity.jpg", 
         "url": "https://winity.one/alt/winity/sign-up/?519f28cfce4587e60a0decbc6997267c&promocode=TVINK"
     },
@@ -50,15 +50,15 @@ const CASINOS = [
     },
     {
         "name": "Booi", 
-        "desc": "Бонус 225%. + 100FS до 1500$", 
+        "desc": "Бонус 225%. + 100FS до 1500$. Быстрые выводы", 
         "promo": "TVINK", 
-        "categories": ["ПлейФорты"], 
+        "categories": ["ПлейФорты", "Топ"], 
         "img": "https://арчизнал.рф/img/booi.jpg", 
         "url": "https://booi-promo.com/alt/booi/ru/sign-up?584daead1fadee42b85f370248da1303&promocode=TVINK"
     },
     {
         "name": "JOZZ", 
-        "desc": "Бонус 100% до 500$", 
+        "desc": "Бонус 100% до 500$. Быстрые выводы", 
         "promo": "TVINK", 
         "categories": ["ПлейФорты"], 
         "img": "https://jekatvink.vercel.app/img/jozz.jpg", 
