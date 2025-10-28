@@ -24,8 +24,8 @@ function buildCategories() {
     allBtn.dataset.cat = 'all'; 
     categoryButtons.appendChild(allBtn);
     
-    // Категории "Криптоказино" и "ПлейФорты"
-    ['Криптоказино', 'ПлейФорты'].forEach(cat => {
+    // Категории "Топ", "Криптоказино" и "ПлейФорты"
+    ['Топ', 'Криптоказино', 'ПлейФорты'].forEach(cat => {
         if (cats.has(cat)) {
             const b = document.createElement('button'); 
             b.className = 'cat-btn'; 
@@ -49,6 +49,10 @@ function createCard(c) {
     card.className = 'casino-card';
     if (c.fake) card.classList.add('scam');
     card.dataset.categories = (c.categories||[]).join(' ');
+    
+    // Проверяем TOP казино
+    const isTop = c.categories.includes('Топ');
+    const topBadge = isTop ? '<div class="top-badge">ТОП</div>' : '';
     
     // Разбиваем описание на отдельные бонусы
     const bonusItems = c.desc.split('. ').filter(item => item.trim());
@@ -76,6 +80,7 @@ function createCard(c) {
     } else {
         card.innerHTML = `
             <img src="${c.img}" alt="${c.name}" loading="lazy">
+            ${topBadge}
             <div class="casino-title-strip">
                 <h3>${c.name}</h3>
             </div>
@@ -84,7 +89,7 @@ function createCard(c) {
                     ${bonusHTML}
                 </div>
                 ${c.promo ? `<div class="promo-label">Промокод при регистрации</div><div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
-                <button class="play-button">в игру</button>
+                <a href="${c.url}" class="play-button" target="_blank" rel="noopener noreferrer">в игру</a>
             </div>
         `;
     }
@@ -128,26 +133,7 @@ function createCard(c) {
             setTimeout(() => card.remove(), 1200);
         });
     } else {
-        btn.addEventListener('click', async () => {
-            // Сначала копируем промокод если есть
-            if (c.promo) { 
-                try { 
-                    await navigator.clipboard.writeText(c.promo);
-                } catch(e) {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = c.promo;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                } 
-            }
-            
-            // Затем переходим по ссылке
-            if (c.url && c.url !== '#') {
-                window.open(c.url, '_blank', 'noopener,noreferrer');
-            }
-        });
+        // Для реальных казино - кнопка теперь ссылка <a>, обработчик не нужен
     }
     return card;
 }
