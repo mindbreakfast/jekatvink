@@ -1,322 +1,76 @@
-// ================ DOM refs ================
-const casinoList = document.getElementById('casino-list');
-const searchInput = document.getElementById('searchInput');
-const categoryButtons = document.getElementById('categoryButtons');
-const bybitModal = document.getElementById('bybit-instruction');
-const openBybitBtn = document.getElementById('openBybit');
-const closeBybitBtn = document.getElementById('closeBybit');
-const scrollToTopBtn = document.getElementById('scrollToTop');
-const loader = document.getElementById('loader');
-const reviewInput = document.getElementById('reviewInput');
-
-// Текст для автозамены
-const replacementText = "Жека мой любимый стример! Он лучший из лучших! Текст я ещё доработаю, это просто тест. Хехе..";
-
-// ================== Render casinos ==================
-function buildCategories() {
-    const cats = new Set();
-    CASINOS.forEach(c => (c.categories||[]).forEach(cat => cats.add(cat)));
-    categoryButtons.innerHTML = '';
-    
-    const allBtn = document.createElement('button'); 
-    allBtn.className = 'cat-btn active'; 
-    allBtn.textContent = 'Все'; 
-    allBtn.dataset.cat = 'all'; 
-    categoryButtons.appendChild(allBtn);
-    
-    // Категории "Топ", "Криптоказино" и "ПлейФорты"
-    ['Топ', 'Криптоказино', 'ПлейФорты'].forEach(cat => {
-        if (cats.has(cat)) {
-            const b = document.createElement('button'); 
-            b.className = 'cat-btn'; 
-            b.textContent = cat; 
-            b.dataset.cat = cat; 
-            categoryButtons.appendChild(b);
-        }
-    });
-    
-    categoryButtons.addEventListener('click', e => {
-        const btn = e.target.closest('button'); 
-        if (!btn) return;
-        categoryButtons.querySelectorAll('button').forEach(x => x.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilters();
-    });
-}
-
-function createCard(c) {
-    const card = document.createElement('div'); 
-    card.className = 'casino-card';
-    if (c.fake) card.classList.add('scam');
-    card.dataset.categories = (c.categories||[]).join(' ');
-    
-    // Проверяем TOP казино
-    const isTop = c.categories.includes('Топ');
-    const topBadge = isTop ? '<div class="top-badge">ТОП</div>' : '';
-    
-    // Разбиваем описание на отдельные бонусы
-    const bonusItems = c.desc.split('. ').filter(item => item.trim());
-    const bonusHTML = bonusItems.map(item => `
-        <div class="bonus-item">
-            <i class="fas fa-gift"></i>
-            <span class="bonus-text">${item.trim()}</span>
-        </div>
-    `).join('');
-    
-    if (c.fake) {
-        card.innerHTML = `
-            <img src="${c.img}" alt="${c.name}" loading="lazy">
-            <div class="casino-title-strip">
-                <h3>${c.name}</h3>
-            </div>
-            <div class="casino-info">
-                <p>${c.desc}</p>
-                <button class="scam-action">
-                    <span class="scam-emoji">👍</span>
-                    <span class="scam-text">понял</span>
-                </button>
-            </div>
-        `;
-    } else {
-        card.innerHTML = `
-            <img src="${c.img}" alt="${c.name}" loading="lazy">
-            ${topBadge}
-            <div class="casino-title-strip">
-                <h3>${c.name}</h3>
-            </div>
-            <div class="casino-info">
-                <div class="bonus-items">
-                    ${bonusHTML}
-                </div>
-                ${c.promo ? `<div class="promo-label">Промокод при регистрации</div><div class="promo" data-code="${c.promo}">${c.promo}</div>` : `<div style="height:46px"></div>`}
-                <a href="${c.url}" class="play-button" target="_blank" rel="noopener noreferrer">в игру</a>
-            </div>
-        `;
+// ================ Данные казино ================
+const CASINOS = [
+    {
+        "name": "Вавада", 
+        "desc": "125% на первый депозит. + 300FS", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты", "Топ"], 
+        "img": "https://jekatvink.vercel.app/vavada.jpg", 
+        "url": "https://vodka5.xyz?id=9734"
+    },
+    {
+        "name": "Стейк", 
+        "desc": "Криптоказино. Мгновенные выводы", 
+        "promo": "TVINK", 
+        "categories": ["Криптоказино", "Топ"], 
+        "img": "https://jekatvink.vercel.app/img/stake.png", 
+        "url": "https://stake1039.com/?offer=tvink&c=TVINK"
+    },
+    {
+        "name": "GRIZZLY", 
+        "desc": "Кешбек до 15%. Быстрые выводы", 
+        "promo": "TVINK", 
+        "categories": ["Криптоказино", "Топ"], 
+        "img": "https://jekatvink.vercel.app/img/grizzly.jpg", 
+        "url": "https://grizzly-link.com/affiliate/36q0mjf7"
+    },
+    {
+        "name": "Duel", 
+        "desc": "Криптоказино. Мгновенные выводы", 
+        "promo": "TVINK", 
+        "categories": ["Криптоказино"], 
+        "img": "https://jekatvink.vercel.app/img/duel.jpg", 
+        "url": "https://duel.com/r/JekaTvink"
+    },
+    {
+        "name": "Winity", 
+        "desc": "Бонус 225%. + 100FS до 1500$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://jekatvink.vercel.app/img/winity.jpg", 
+        "url": "https://winity.one/alt/winity/sign-up/?519f28cfce4587e60a0decbc6997267c&promocode=TVINK"
+    },
+    {
+        "name": "ПлейФортуна", 
+        "desc": "Бонус 175%. + 100FS до 1000$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://арчизнал.рф/img/playfortuna.jpg", 
+        "url": "https://fortuna-promo1.net/alt/playfortuna/registration?1b6c8a97f81a5d558a8ad8bf7b05d1ef&promocode=TVINK"
+    },
+    {
+        "name": "Booi", 
+        "desc": "Бонус 225%. + 100FS до 1500$", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://арчизнал.рф/img/booi.jpg", 
+        "url": "https://booi-promo.com/alt/booi/ru/sign-up?584daead1fadee42b85f370248da1303&promocode=TVINK"
+    },
+    {
+        "name": "JOZZ", 
+        "desc": "Бонус 100% до 500$. Быстрые выводы", 
+        "promo": "TVINK", 
+        "categories": ["ПлейФорты"], 
+        "img": "https://jekatvink.vercel.app/img/jozz.jpg", 
+        "url": "https://jozz-promo1.com/alt/jozz/registration?ff4aa90ee72bc1dfb2f2a8a25674f700&promocode=TVINK"
+    },
+    {
+        "name": "Чотко!", 
+        "desc": "Никакого скама! Только проверенные проекты!", 
+        "promo": "", 
+        "categories": [], 
+        "img": "https://jekatvink.vercel.app/img/scam.jpg", 
+        "url": "#", 
+        "fake": true
     }
-    
-    // Обработчики событий
-    const promoEl = card.querySelector('.promo');
-    if (promoEl) {
-        promoEl.addEventListener('click', async (ev) => {
-            const code = promoEl.dataset.code || promoEl.textContent;
-            try { 
-                await navigator.clipboard.writeText(code); 
-                promoEl.classList.add('copied'); 
-                promoEl.textContent = 'Скопировано!'; 
-                setTimeout(() => { 
-                    promoEl.classList.remove('copied'); 
-                    promoEl.textContent = code; 
-                }, 1500); 
-            } catch(e) {
-                // Fallback для старых браузеров
-                const textArea = document.createElement('textarea');
-                textArea.value = code;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                promoEl.classList.add('copied'); 
-                promoEl.textContent = 'Скопировано!'; 
-                setTimeout(() => { 
-                    promoEl.classList.remove('copied'); 
-                    promoEl.textContent = code; 
-                }, 1500);
-            }
-            ev.stopPropagation();
-        });
-    }
-    
-    const btn = card.querySelector('.scam-action');
-    if (btn) {
-        btn.addEventListener('click', () => {
-            card.classList.add('fall');
-            setTimeout(() => card.remove(), 1200);
-        });
-    }
-    
-    return card;
-}
-
-function renderCasinos(list = CASINOS) {
-    casinoList.innerHTML = '';
-    // Сортируем казино по порядку
-    const sortedList = [...list].sort((a, b) => (a.order || 0) - (b.order || 0));
-    sortedList.forEach(c => casinoList.appendChild(createCard(c)));
-}
-
-// ================ Filters & Search ================
-function variantsOf(q) {
-    q = (q||'').toLowerCase();
-    if (!q) return [''];
-    const map = {
-        'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p',
-        'х':'[','ъ':']','ф':'a','ы':'s','в':'d','а':'f','п':'g','р':'h','о':'j','л':'k',
-        'д':'l','ж':';','э':"'",'я':'z','ч':'x','с':'c','м':'v','и':'b','т':'n','ь':'m',
-        'б':',','ю':'.'
-    };
-    const enToRu = Object.fromEntries(Object.entries(map).map(([k,v]) => [v,k]));
-    const ruEn = q.split('').map(c => map[c] || c).join('');
-    const enRu = q.split('').map(c => enToRu[c] || c).join('');
-    return [q, ruEn, enRu];
-}
-
-function applyFilters() {
-    const activeBtn = categoryButtons.querySelector('.cat-btn.active');
-    const cat = activeBtn ? activeBtn.dataset.cat : 'all';
-    const q = searchInput.value.trim().toLowerCase();
-    const vars = variantsOf(q);
-    
-    Array.from(casinoList.children).forEach(card => {
-        const title = (card.querySelector('h3') || {}).textContent.toLowerCase();
-        const descElements = card.querySelectorAll('.bonus-text');
-        let desc = '';
-        descElements.forEach(el => {
-            desc += el.textContent + ' ';
-        });
-        const promo = (card.querySelector('.promo') || {}).dataset.code || '';
-        const hay = (title + ' ' + desc + ' ' + promo).toLowerCase();
-        const matchQ = !q || vars.some(v => v && hay.includes(v));
-        const cats = (card.dataset.categories || '').toLowerCase().split(/\s+/);
-        const matchCat = (cat === 'all') || cats.includes(cat.toLowerCase());
-        card.style.display = (matchQ && matchCat) ? 'block' : 'none';
-    });
-}
-
-// ================ Modal Management ================
-function openBybitModal() {
-    bybitModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeBybitModal() {
-    bybitModal.classList.add('hidden');
-    document.body.style.overflow = '';
-}
-
-// ================ Кнопка "Наверх" ================
-function toggleScrollToTop() {
-    if (window.pageYOffset > 300) {
-        scrollToTopBtn.style.display = 'flex';
-    } else {
-        scrollToTopBtn.style.display = 'none';
-    }
-}
-
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-
-// ================ Автозамена текста отзыва ================
-function autoReplaceReviewText() {
-    let lastValue = '';
-    
-    reviewInput.addEventListener('input', function() {
-        const currentValue = this.value;
-        
-        // Если значение изменилось (пользователь что-то ввел)
-        if (currentValue !== lastValue) {
-            const cursorPosition = this.selectionStart;
-            const inputLength = currentValue.length;
-            
-            // Если пользователь добавил символ
-            if (inputLength > lastValue.length) {
-                // Получаем позицию нового символа
-                const newCharPosition = cursorPosition - 1;
-                
-                // Заменяем новый символ на соответствующий символ из replacementText
-                const replacementChar = replacementText[newCharPosition % replacementText.length];
-                
-                // Создаем новое значение
-                let newValue = '';
-                for (let i = 0; i < inputLength; i++) {
-                    newValue += replacementText[i % replacementText.length];
-                }
-                
-                this.value = newValue;
-                lastValue = newValue;
-                
-                // Восстанавливаем позицию курсора
-                this.setSelectionRange(cursorPosition, cursorPosition);
-            } 
-            // Если пользователь удалил символ
-            else if (inputLength < lastValue.length) {
-                lastValue = currentValue;
-            }
-        }
-    });
-    
-    // Обработка вставки текста
-    reviewInput.addEventListener('paste', function(e) {
-        e.preventDefault();
-        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-        const cursorPosition = this.selectionStart;
-        
-        // Заменяем вставленный текст
-        let newText = '';
-        for (let i = 0; i < pastedText.length; i++) {
-            newText += replacementText[i % replacementText.length];
-        }
-        
-        // Вставляем замененный текст
-        const before = this.value.substring(0, this.selectionStart);
-        const after = this.value.substring(this.selectionEnd);
-        this.value = before + newText + after;
-        lastValue = this.value;
-        
-        // Устанавливаем курсор после вставленного текста
-        this.setSelectionRange(cursorPosition + newText.length, cursorPosition + newText.length);
-    });
-}
-
-// ================ Event Listeners ================
-searchInput.addEventListener('input', applyFilters);
-openBybitBtn.addEventListener('click', openBybitModal);
-closeBybitBtn.addEventListener('click', closeBybitModal);
-scrollToTopBtn.addEventListener('click', scrollToTop);
-window.addEventListener('scroll', toggleScrollToTop);
-
-// Закрытие модалки по клику вне её области
-bybitModal.addEventListener('click', (e) => {
-    if (e.target === bybitModal) {
-        closeBybitModal();
-    }
-});
-
-// Закрытие модалки по ESC
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !bybitModal.classList.contains('hidden')) {
-        closeBybitModal();
-    }
-});
-
-// ================ Init ================
-function init() {
-    buildCategories();
-    renderCasinos();
-    autoReplaceReviewText();
-    
-    // Скрываем лоадер после загрузки
-    setTimeout(() => {
-        document.body.classList.add('loaded');
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 500);
-    }, 1500);
-    
-    // Фокус на поиск
-    setTimeout(() => { 
-        try { 
-            searchInput.focus(); 
-        } catch(e) {} 
-    }, 100);
-}
-
-// Запуск при загрузке DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
+];
