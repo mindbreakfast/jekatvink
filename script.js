@@ -24,8 +24,8 @@ function buildCategories() {
     allBtn.dataset.cat = 'all'; 
     categoryButtons.appendChild(allBtn);
     
-    // Категории "Топ", "Новые" и "Крипто"
-    ['Топ', 'Новые', 'Крипто'].forEach(cat => {
+    // Категории "Криптоказино" и "ПлейФорты"
+    ['Криптоказино', 'ПлейФорты'].forEach(cat => {
         if (cats.has(cat)) {
             const b = document.createElement('button'); 
             b.className = 'cat-btn'; 
@@ -144,7 +144,7 @@ function createCard(c) {
             }
             
             // Затем переходим по ссылке
-            if (c.url && c.url !== '#' && !c.url.includes('example.com')) {
+            if (c.url && c.url !== '#') {
                 window.open(c.url, '_blank', 'noopener,noreferrer');
             }
         });
