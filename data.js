@@ -50,7 +50,7 @@ const CASINOS = [
     },
     {
         "name": "Booi", 
-        "desc": "Бонус 225%. + 100FS до 1500$. Быстрые выводы", 
+        "desc": "Бонус 225%. + 100FS до 1500$", 
         "promo": "TVINK", 
         "categories": ["ПлейФорты", "Топ"], 
         "img": "https://арчизнал.рф/img/booi.jpg", 
